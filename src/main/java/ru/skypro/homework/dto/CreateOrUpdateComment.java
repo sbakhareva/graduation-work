@@ -9,10 +9,8 @@ import lombok.*;
 @NoArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class Login {
+public class CreateOrUpdateComment {
 
-    @Size(min = 4, max = 32)
-    private String username;
-    @Size(min = 8, max = 16)
-    private String password;
+    @Size(min = 8, max = 64)
+    private String text;
 }
