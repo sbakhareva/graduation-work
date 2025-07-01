@@ -17,14 +17,14 @@ public class AdsController {
     @GetMapping
     @Operation(summary = "Получение всех объявлений", tags = {"Объявления"})
     public Ads getAllAds() {
-        return new Ads(1, List.of(new Ad(1, "image", 123, 50, "ad")));
+        return new Ads(1, List.of(new Ad(1, "image", 123, 50, "ad","as")));
     }
 
     @PostMapping
     @Operation(summary = "Добавление объявления", tags = {"Объявления"})
     public Ad addAd(@RequestBody Ad ad,
                     @RequestParam MultipartFile adImage) {
-        return new Ad(1, "image", 123, 50, "ad");
+        return new Ad(1, "image", 123, 50, "ad","as");
     }
 
     @GetMapping("/{id}")
@@ -43,13 +43,13 @@ public class AdsController {
     @Operation(summary = "Обновление информации об объявлении", tags = {"Объявления"})
     public Ad updateAds(@PathVariable(value = "id", required = true) Integer id,
                        @RequestBody CreateOrUpdateAd ad) {
-        return new Ad(1, "image", 123, 50, "ad");
+        return new Ad(1, "image", 123, 50, "ad","as");
     }
 
     @GetMapping("/me")
     @Operation(summary = "Получение объявлений авторизованного пользователя", tags = {"Объявления"})
     public Ads getAdsMe() {
-        return new Ads(1, List.of(new Ad(1, "image", 123, 50, "ad")));
+        return new Ads(1, List.of(new Ad(1, "image", 123, 50, "ad","as")));
     }
 
     @PatchMapping("/{id}/image")
