@@ -14,7 +14,6 @@ import java.util.List;
 @RequestMapping("/ads")
 public class AdsController {
 
-    @Description("Получение всех объявлений")
     @GetMapping
     @Operation(summary = "Получение всех объявлений", tags = {"Объявления"})
     public Ads getAllAds() {
