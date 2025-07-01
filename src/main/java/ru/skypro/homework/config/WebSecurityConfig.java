@@ -14,7 +14,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import ru.skypro.homework.dto.Role;
 
 import java.util.List;
 
@@ -37,8 +36,17 @@ public class WebSecurityConfig {
                         .username("user@gmail.com")
                         .password("password")
                         .passwordEncoder(passwordEncoder::encode)
-                        .roles(Role.USER.name())
+                        .roles("USER")
                         .build();
+
+        // TODO: разделение действий в сервисе по ролям, но нужна логика работы со всяким
+        UserDetails admin = User.builder()
+                .username("admin@gmail.com")
+                .password("adminpass")
+                .passwordEncoder(passwordEncoder::encode)
+                .roles("ADMIN")
+                .build();
+
         return new InMemoryUserDetailsManager(user);
     }
 
