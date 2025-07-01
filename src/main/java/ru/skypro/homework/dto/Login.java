@@ -3,12 +3,9 @@ package ru.skypro.homework.dto;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
 public class Login {
 
     @Size(min = 4, max = 32)
