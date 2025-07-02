@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.Role;
 import ru.skypro.homework.dto.UpdateUser;
-import ru.skypro.homework.dto.User;
+import ru.skypro.homework.dto.UserDTO;
 
 @RestController
 @RequestMapping("/users")
@@ -23,8 +23,8 @@ public class UserController {
 
     @GetMapping("/me")
     @Operation(summary = "Получение информации об авторизованном пользователе")
-    public User getUser() {
-        return new User(1, "userEmail@oiia.ru", "bob", "newby", "+77777777777", Role.USER, "image");
+    public UserDTO getUser() {
+        return new UserDTO(1, "userEmail@oiia.ru", "bob", "newby", "+77777777777", Role.USER, "image");
     }
 
     @PatchMapping("/me")

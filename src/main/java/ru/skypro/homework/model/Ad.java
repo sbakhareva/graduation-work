@@ -5,15 +5,12 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import ru.skypro.homework.dto.Ads;
 
 @Entity
-@Getter
-@Setter
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
 public class Ad {
 
     @Id
@@ -21,7 +18,9 @@ public class Ad {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer id; // id объявления
 
+    @OneToOne(mappedBy = "ad", cascade = CascadeType.ALL)
     private AdImage image;
+
     private Integer price;
     private String title;
     private String description;

@@ -1,7 +1,6 @@
 package ru.skypro.homework.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,14 +16,14 @@ public class AdsController {
     @GetMapping
     @Operation(summary = "Получение всех объявлений", tags = {"Объявления"})
     public Ads getAllAds() {
-        return new Ads(1, List.of(new Ad(1, "image", 123, 50, "ad","as")));
+        return new Ads(1, List.of(new AdDTO(1, "image", 123, 50, "ad")));
     }
 
     @PostMapping
     @Operation(summary = "Добавление объявления", tags = {"Объявления"})
-    public Ad addAd(@RequestBody Ad ad,
-                    @RequestParam MultipartFile adImage) {
-        return new Ad(1, "image", 123, 50, "ad","as");
+    public AdDTO addAd(@RequestBody AdDTO ad,
+                       @RequestParam MultipartFile adImage) {
+        return new AdDTO(1, "image", 123, 50, "ad");
     }
 
     @GetMapping("/{id}")
@@ -41,15 +40,15 @@ public class AdsController {
 
     @PatchMapping("/{id}")
     @Operation(summary = "Обновление информации об объявлении", tags = {"Объявления"})
-    public Ad updateAds(@PathVariable(value = "id", required = true) Integer id,
-                       @RequestBody CreateOrUpdateAd ad) {
-        return new Ad(1, "image", 123, 50, "ad","as");
+    public AdDTO updateAds(@PathVariable(value = "id", required = true) Integer id,
+                           @RequestBody CreateOrUpdateAd ad) {
+        return new AdDTO(1, "image", 123, 50, "ad");
     }
 
     @GetMapping("/me")
     @Operation(summary = "Получение объявлений авторизованного пользователя", tags = {"Объявления"})
     public Ads getAdsMe() {
-        return new Ads(1, List.of(new Ad(1, "image", 123, 50, "ad","as")));
+        return new Ads(1, List.of(new AdDTO(1, "image", 123, 50, "ad")));
     }
 
     @PatchMapping("/{id}/image")
@@ -62,14 +61,14 @@ public class AdsController {
     @GetMapping("/{id}/comments")
     @Operation(summary = "Получение комментариев объявления", tags = {"Комментарии"})
     public Comments getComments(@PathVariable(value = "id", required = true) Integer id) {
-        return new Comments(1, List.of(new Comment(1, "image", "author", LocalDateTime.now().getMinute(), 1276, "text")));
+        return new Comments(1, List.of(new CommentDTO(1, "image", "author", LocalDateTime.now().getMinute(), 1276, "text")));
     }
 
     @PostMapping("/{id}/comments")
     @Operation(summary = "Добавление комментария к объявлению", tags = {"Комментарии"})
-    public Comment addComment(@PathVariable("id") Integer id,
-                              @RequestBody CreateOrUpdateComment comment) {
-        return new Comment(1, "image", "author", LocalDateTime.now().getMinute(), 1276, "text");
+    public CommentDTO addComment(@PathVariable("id") Integer id,
+                                 @RequestBody CreateOrUpdateComment comment) {
+        return new CommentDTO(1, "image", "author", LocalDateTime.now().getMinute(), 1276, "text");
     }
 
     @DeleteMapping("/{adId}/comments/{commentId}")
@@ -81,9 +80,9 @@ public class AdsController {
 
     @PatchMapping("/{adId}/comments/{commentId}")
     @Operation(summary = "Обновление комментария", tags = {"Комментарии"})
-    public Comment updateComment(@PathVariable(value = "adId", required = true) Integer adId,
-                                 @PathVariable(value = "commentId", required = true) Integer commentId,
-                                 @RequestBody CreateOrUpdateComment comment) {
-        return new Comment(1, "image", "author", LocalDateTime.now().getMinute(), 1276, "text");
+    public CommentDTO updateComment(@PathVariable(value = "adId", required = true) Integer adId,
+                                    @PathVariable(value = "commentId", required = true) Integer commentId,
+                                    @RequestBody CreateOrUpdateComment comment) {
+        return new CommentDTO(1, "image", "author", LocalDateTime.now().getMinute(), 1276, "text");
     }
 }

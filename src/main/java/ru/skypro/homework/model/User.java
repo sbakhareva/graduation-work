@@ -8,12 +8,10 @@ import ru.skypro.homework.dto.Role;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
 public class User {
 
     @Id
@@ -26,7 +24,9 @@ public class User {
     private String lastName;
     private String phone;
     private Role role;
-    private String image; // ссылка на аватар пользователя
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserImage image;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
     private List<Ad> ads;
