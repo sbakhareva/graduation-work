@@ -8,6 +8,7 @@ import ru.skypro.homework.dto.Role;
 import java.util.List;
 
 @Entity
+@Table(name = "users")
 @Data
 @Builder
 @AllArgsConstructor
