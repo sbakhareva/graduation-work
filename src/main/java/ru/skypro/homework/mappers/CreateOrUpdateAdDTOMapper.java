@@ -1,26 +1,25 @@
 package ru.skypro.homework.mappers;
 
 import org.springframework.stereotype.Component;
-import ru.skypro.homework.dto.AdDTO;
 import ru.skypro.homework.dto.CreateOrUpdateAd;
+import ru.skypro.homework.model.Ad;
 
+/**
+ * Этот маппер позволяет обновить поля сущности Ad из CreateOrUpdateAd,
+ * чтобы затем с помощью AdDTOMapper была возможность вернуть в ответе AdDTO с обновленными полями
+ */
 @Component
 public class CreateOrUpdateAdDTOMapper {
 
-    public AdDTO fromDto(CreateOrUpdateAd createOrUpdateAd,
-                         Integer adId,
-                         Integer authorId,
-                         String imagePath) {
-        if (createOrUpdateAd == null) {
-            return null;
+    public void updateEntityFromDto(CreateOrUpdateAd createOrUpdateAd, Ad ad) {
+        if (createOrUpdateAd.getDescription() != null && !createOrUpdateAd.getDescription().isBlank()) {
+            ad.setDescription(createOrUpdateAd.getDescription());
         }
-        // по хорошему нужны репозитории для вытаскивания adDto из обновленной ad
-        return new AdDTO(
-                authorId,
-                imagePath,
-                adId,
-                createOrUpdateAd.getPrice(),
-                createOrUpdateAd.getTitle()
-        );
+        if (createOrUpdateAd.getPrice() != null) {
+            ad.setPrice(createOrUpdateAd.getPrice());
+        }
+        if (createOrUpdateAd.getTitle() != null) {
+            ad.setTitle(createOrUpdateAd.getTitle());
+        }
     }
 }

@@ -2,8 +2,12 @@ package ru.skypro.homework.mappers;
 
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.CommentDTO;
+import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.Comment;
 
+/**
+ * Маппер Comment <-> CommentDTO
+ */
 @Component
 public class CommentDTOMapper {
 
@@ -18,14 +22,14 @@ public class CommentDTOMapper {
         );
     }
 
-    public Comment fromDto(CommentDTO commentDTO) {
+    public Comment fromDto(CommentDTO commentDTO, Ad ad) {
         return Comment.builder()
                 .authorId(commentDTO.getAuthor())
                 .authorImage(commentDTO.getAuthorImage())
                 .authorName(commentDTO.getAuthorName())
                 .createdAt(commentDTO.getCreatedAt())
                 .text(commentDTO.getText())
-                // TODO: появилась проблема с тем, как здесь связать комментарий и объявление
+                .ad(ad)
                 .build();
     }
 }

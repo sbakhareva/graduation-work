@@ -6,6 +6,9 @@ import ru.skypro.homework.model.User;
 
 import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
 
+/**
+ * Маппер User <-> UserDTO
+ */
 @Component
 public class UserDTOMapper {
 
