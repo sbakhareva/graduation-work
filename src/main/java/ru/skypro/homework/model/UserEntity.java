@@ -3,6 +3,7 @@ package ru.skypro.homework.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
+import ru.skypro.homework.dto.Login;
 import ru.skypro.homework.dto.Role;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class UserEntity {
     private String firstName;
     private String lastName;
     private String phone;
+    private String password;
     private Role role;
 
     @OneToOne(mappedBy = "userEntity", cascade = CascadeType.ALL)
