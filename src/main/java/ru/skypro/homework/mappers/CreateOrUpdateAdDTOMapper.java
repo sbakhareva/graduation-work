@@ -11,15 +11,15 @@ import ru.skypro.homework.model.AdEntity;
 @Component
 public class CreateOrUpdateAdDTOMapper {
 
-    public void updateEntityFromDto(CreateOrUpdateAd createOrUpdateAd, AdEntity adEntity) {
+    public void updateEntityFromDto(CreateOrUpdateAd createOrUpdateAd, AdEntity ad) {
         if (createOrUpdateAd.getDescription() != null && !createOrUpdateAd.getDescription().isBlank()) {
-            adEntity.setDescription(createOrUpdateAd.getDescription());
+            ad.setDescription(createOrUpdateAd.getDescription());
         }
         if (createOrUpdateAd.getPrice() != null) {
-            adEntity.setPrice(createOrUpdateAd.getPrice());
+            ad.setPrice(createOrUpdateAd.getPrice());
         }
         if (createOrUpdateAd.getTitle() != null) {
-            adEntity.setTitle(createOrUpdateAd.getTitle());
+            ad.setTitle(createOrUpdateAd.getTitle());
         }
     }
 }

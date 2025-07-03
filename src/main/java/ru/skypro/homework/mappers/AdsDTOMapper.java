@@ -17,11 +17,11 @@ public class AdsDTOMapper {
         this.adDTOMapper = adDTOMapper;
     }
 
-    public Ads toDto(List<AdEntity> adEntities) {
-        if (adEntities == null || adEntities.isEmpty()) {
+    public Ads toDto(List<AdEntity> ads) {
+        if (ads == null || ads.isEmpty()) {
             return new Ads(0, Collections.emptyList());
         }
-        List<Ad> adsDto = adEntities.stream()
+        List<Ad> adsDto = ads.stream()
                 .map(adDTOMapper::toDto)
                 .toList();
 

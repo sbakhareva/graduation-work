@@ -11,9 +11,9 @@ import ru.skypro.homework.model.CommentEntity;
 @Component
 public class CreateOrUpdateCommentDTOMapper {
 
-    public void updateEntityFromDto(CreateOrUpdateComment updateComment, CommentEntity commentEntity) {
+    public void updateEntityFromDto(CreateOrUpdateComment updateComment, CommentEntity comment) {
         if (updateComment.getText() != null) {
-            commentEntity.setText(updateComment.getText());
+            comment.setText(updateComment.getText());
         }
     }
 }

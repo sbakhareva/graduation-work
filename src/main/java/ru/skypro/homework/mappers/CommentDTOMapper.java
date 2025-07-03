@@ -11,25 +11,25 @@ import ru.skypro.homework.model.CommentEntity;
 @Component
 public class CommentDTOMapper {
 
-    public Comment toDto(CommentEntity commentEntity) {
+    public Comment toDto(CommentEntity comment) {
         return new Comment(
-                commentEntity.getAuthorId(),
-                commentEntity.getAuthorImage(),
-                commentEntity.getAuthorName(),
-                commentEntity.getCreatedAt(),
-                commentEntity.getId(),
-                commentEntity.getText()
+                comment.getAuthorId(),
+                comment.getAuthorImage(),
+                comment.getAuthorName(),
+                comment.getCreatedAt(),
+                comment.getId(),
+                comment.getText()
         );
     }
 
-    public CommentEntity fromDto(Comment comment, AdEntity adEntity) {
+    public CommentEntity fromDto(Comment comment, AdEntity ad) {
         return CommentEntity.builder()
                 .authorId(comment.getAuthor())
                 .authorImage(comment.getAuthorImage())
                 .authorName(comment.getAuthorName())
                 .createdAt(comment.getCreatedAt())
                 .text(comment.getText())
-                .adEntity(adEntity)
+                .ad(ad)
                 .build();
     }
 }

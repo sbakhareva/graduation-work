@@ -10,20 +10,20 @@ import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
 @Component
 public class ExtendedAdDTOMapper {
 
-    public ExtendedAd toDto(AdEntity adEntity, UserEntity userEntity) {
-        if (adEntity == null) {
+    public ExtendedAd toDto(AdEntity ad, UserEntity user) {
+        if (ad == null) {
             return null;
         }
         return new ExtendedAd(
-                adEntity.getId(),
-                userEntity.getFirstName(),
-                userEntity.getLastName(),
-                adEntity.getDescription(),
-                userEntity.getEmail(),
-                generateImageUrl(adEntity),
-                userEntity.getPhone(),
-                adEntity.getPrice(),
-                adEntity.getTitle()
+                ad.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                ad.getDescription(),
+                user.getEmail(),
+                generateImageUrl(ad),
+                user.getPhone(),
+                ad.getPrice(),
+                ad.getTitle()
         );
     }
 }

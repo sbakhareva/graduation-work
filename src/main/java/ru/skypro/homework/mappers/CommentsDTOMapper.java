@@ -17,12 +17,12 @@ public class CommentsDTOMapper {
         this.commentDTOMapper = commentDTOMapper;
     }
 
-    public Comments toDto(List<CommentEntity> commentEntities) {
-        if (commentEntities == null || commentEntities.isEmpty()) {
+    public Comments toDto(List<CommentEntity> comments) {
+        if (comments == null || comments.isEmpty()) {
             return new Comments(0, Collections.EMPTY_LIST);
         }
 
-        List<Comment> commentsDto = commentEntities.stream()
+        List<Comment> commentsDto = comments.stream()
                 .map(commentDTOMapper::toDto)
                 .toList();
 
