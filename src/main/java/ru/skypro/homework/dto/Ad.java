@@ -6,7 +6,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdDTO {
+public class Ad {
 
     private Integer author; // id автора объявления
     private String image;

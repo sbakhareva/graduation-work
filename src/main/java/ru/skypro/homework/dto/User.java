@@ -5,7 +5,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO {
+public class User {
 
     private Integer id;
     private String email;

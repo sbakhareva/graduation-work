@@ -1,7 +1,6 @@
 package ru.skypro.homework.dto;
 
 import lombok.*;
-import ru.skypro.homework.model.Ad;
 
 import java.util.List;
 
@@ -11,6 +10,6 @@ import java.util.List;
 public class Ads {
 
     private Integer count;
-    private List<AdDTO> results;
+    private List<Ad> results;
 }
 

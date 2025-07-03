@@ -1,44 +1,44 @@
 package ru.skypro.homework.mappers;
 
 import org.springframework.stereotype.Component;
-import ru.skypro.homework.dto.UserDTO;
-import ru.skypro.homework.model.User;
+import ru.skypro.homework.dto.User;
+import ru.skypro.homework.model.UserEntity;
 import ru.skypro.homework.model.UserImage;
 
 import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
 
 /**
- * Маппер User <-> UserDTO
+ * Маппер UserEntity <-> User
  */
 @Component
 public class UserDTOMapper {
 
-    public User fromDto(UserDTO userDTO, UserImage userImage) {
-        if (userDTO == null) {
+    public UserEntity fromDto(User user, UserImage userImage) {
+        if (user == null) {
             return null;
         }
-        return User.builder()
-                .email(userDTO.getEmail())
-                .firstName(userDTO.getFirstName())
-                .lastName(userDTO.getLastName())
-                .phone(userDTO.getPhone())
-                .role(userDTO.getRole())
+        return UserEntity.builder()
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phone(user.getPhone())
+                .role(user.getRole())
                 .image(userImage) // та же ситуация, что и в AdDTOMapper
                 .build();
     }
 
-    public UserDTO toDTO(User user) {
-        if (user == null) {
+    public User toDTO(UserEntity userEntity) {
+        if (userEntity == null) {
             return null;
         }
-        return new UserDTO(
-                user.getId(),
-                user.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getPhone(),
-                user.getRole(),
-                generateImageUrl(user)
+        return new User(
+                userEntity.getId(),
+                userEntity.getEmail(),
+                userEntity.getFirstName(),
+                userEntity.getLastName(),
+                userEntity.getPhone(),
+                userEntity.getRole(),
+                generateImageUrl(userEntity)
         );
     }
 }

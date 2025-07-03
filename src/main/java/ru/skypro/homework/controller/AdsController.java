@@ -10,26 +10,26 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/ads")
+@RequestMapping("/adEntities")
 public class AdsController {
 
     @GetMapping
     @Operation(summary = "Получение всех объявлений", tags = {"Объявления"})
     public Ads getAllAds() {
-        return new Ads(1, List.of(new AdDTO(1, "image", 123, 50, "ad")));
+        return new Ads(1, List.of(new Ad(1, "image", 123, 50, "adEntity")));
     }
 
     @PostMapping
     @Operation(summary = "Добавление объявления", tags = {"Объявления"})
-    public AdDTO addAd(@RequestBody AdDTO ad,
-                       @RequestParam MultipartFile adImage) {
-        return new AdDTO(1, "image", 123, 50, "ad");
+    public Ad addAd(@RequestBody Ad ad,
+                    @RequestParam MultipartFile adImage) {
+        return new Ad(1, "image", 123, 50, "adEntity");
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получение информации об объявлении", tags = {"Объявления"})
     public ExtendedAd getAdInfo(@PathVariable("id") Integer id) {
-        return new ExtendedAd(1234, "bob", "newby", "description", "user@gmail.com", "image", "+79643413343", 50, "ad");
+        return new ExtendedAd(1234, "bob", "newby", "description", "userEntity@gmail.com", "image", "+79643413343", 50, "adEntity");
     }
 
     @DeleteMapping("/{id}")
@@ -40,15 +40,15 @@ public class AdsController {
 
     @PatchMapping("/{id}")
     @Operation(summary = "Обновление информации об объявлении", tags = {"Объявления"})
-    public AdDTO updateAds(@PathVariable(value = "id", required = true) Integer id,
-                           @RequestBody CreateOrUpdateAd ad) {
-        return new AdDTO(1, "image", 123, 50, "ad");
+    public Ad updateAds(@PathVariable(value = "id", required = true) Integer id,
+                        @RequestBody CreateOrUpdateAd ad) {
+        return new Ad(1, "image", 123, 50, "adEntity");
     }
 
     @GetMapping("/me")
     @Operation(summary = "Получение объявлений авторизованного пользователя", tags = {"Объявления"})
     public Ads getAdsMe() {
-        return new Ads(1, List.of(new AdDTO(1, "image", 123, 50, "ad")));
+        return new Ads(1, List.of(new Ad(1, "image", 123, 50, "adEntity")));
     }
 
     @PatchMapping("/{id}/image")
@@ -61,14 +61,14 @@ public class AdsController {
     @GetMapping("/{id}/comments")
     @Operation(summary = "Получение комментариев объявления", tags = {"Комментарии"})
     public Comments getComments(@PathVariable(value = "id", required = true) Integer id) {
-        return new Comments(1, List.of(new CommentDTO(1, "image", "author", LocalDateTime.now().getMinute(), 1276, "text")));
+        return new Comments(1, List.of(new Comment(1, "image", "author", LocalDateTime.now().getMinute(), 1276, "text")));
     }
 
     @PostMapping("/{id}/comments")
     @Operation(summary = "Добавление комментария к объявлению", tags = {"Комментарии"})
-    public CommentDTO addComment(@PathVariable("id") Integer id,
-                                 @RequestBody CreateOrUpdateComment comment) {
-        return new CommentDTO(1, "image", "author", LocalDateTime.now().getMinute(), 1276, "text");
+    public Comment addComment(@PathVariable("id") Integer id,
+                              @RequestBody CreateOrUpdateComment comment) {
+        return new Comment(1, "image", "author", LocalDateTime.now().getMinute(), 1276, "text");
     }
 
     @DeleteMapping("/{adId}/comments/{commentId}")
@@ -80,9 +80,9 @@ public class AdsController {
 
     @PatchMapping("/{adId}/comments/{commentId}")
     @Operation(summary = "Обновление комментария", tags = {"Комментарии"})
-    public CommentDTO updateComment(@PathVariable(value = "adId", required = true) Integer adId,
-                                    @PathVariable(value = "commentId", required = true) Integer commentId,
-                                    @RequestBody CreateOrUpdateComment comment) {
-        return new CommentDTO(1, "image", "author", LocalDateTime.now().getMinute(), 1276, "text");
+    public Comment updateComment(@PathVariable(value = "adId", required = true) Integer adId,
+                                 @PathVariable(value = "commentId", required = true) Integer commentId,
+                                 @RequestBody CreateOrUpdateComment comment) {
+        return new Comment(1, "image", "author", LocalDateTime.now().getMinute(), 1276, "text");
     }
 }

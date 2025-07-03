@@ -27,5 +27,5 @@ public class AdImage {
     @OneToOne
     @JoinColumn(name = "ad_id")
     @JsonIgnore
-    private Ad ad;
+    private AdEntity adEntity;
 }

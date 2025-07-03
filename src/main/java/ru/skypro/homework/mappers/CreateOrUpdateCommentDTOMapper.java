@@ -2,18 +2,18 @@ package ru.skypro.homework.mappers;
 
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.CreateOrUpdateComment;
-import ru.skypro.homework.model.Comment;
+import ru.skypro.homework.model.CommentEntity;
 
 /**
- * Этот маппер позволяет обновить поля сущности Comment из CreateOrUpdateComment,
- * чтобы потом с помощью CommentDTOMapper преобразовать обновленный комментарий в CommentDTO
+ * Этот маппер позволяет обновить поля сущности CommentEntity из CreateOrUpdateComment,
+ * чтобы потом с помощью CommentDTOMapper преобразовать обновленный комментарий в Comment
  */
 @Component
 public class CreateOrUpdateCommentDTOMapper {
 
-    public void updateEntityFromDto(CreateOrUpdateComment updateComment, Comment comment) {
+    public void updateEntityFromDto(CreateOrUpdateComment updateComment, CommentEntity commentEntity) {
         if (updateComment.getText() != null) {
-            comment.setText(updateComment.getText());
+            commentEntity.setText(updateComment.getText());
         }
     }
 }

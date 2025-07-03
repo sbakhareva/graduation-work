@@ -1,9 +1,9 @@
 package ru.skypro.homework.mappers;
 
 import org.springframework.stereotype.Component;
-import ru.skypro.homework.dto.CommentDTO;
+import ru.skypro.homework.dto.Comment;
 import ru.skypro.homework.dto.Comments;
-import ru.skypro.homework.model.Comment;
+import ru.skypro.homework.model.CommentEntity;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,12 +17,12 @@ public class CommentsDTOMapper {
         this.commentDTOMapper = commentDTOMapper;
     }
 
-    public Comments toDto(List<Comment> comments) {
-        if (comments == null || comments.isEmpty()) {
+    public Comments toDto(List<CommentEntity> commentEntities) {
+        if (commentEntities == null || commentEntities.isEmpty()) {
             return new Comments(0, Collections.EMPTY_LIST);
         }
 
-        List<CommentDTO> commentsDto = comments.stream()
+        List<Comment> commentsDto = commentEntities.stream()
                 .map(commentDTOMapper::toDto)
                 .toList();
 

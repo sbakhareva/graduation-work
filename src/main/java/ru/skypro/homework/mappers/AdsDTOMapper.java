@@ -1,13 +1,12 @@
 package ru.skypro.homework.mappers;
 
 import org.springframework.stereotype.Component;
-import ru.skypro.homework.dto.AdDTO;
+import ru.skypro.homework.dto.Ad;
 import ru.skypro.homework.dto.Ads;
-import ru.skypro.homework.model.Ad;
+import ru.skypro.homework.model.AdEntity;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class AdsDTOMapper {
@@ -18,11 +17,11 @@ public class AdsDTOMapper {
         this.adDTOMapper = adDTOMapper;
     }
 
-    public Ads toDto(List<Ad> ads) {
-        if (ads == null || ads.isEmpty()) {
+    public Ads toDto(List<AdEntity> adEntities) {
+        if (adEntities == null || adEntities.isEmpty()) {
             return new Ads(0, Collections.emptyList());
         }
-        List<AdDTO> adsDto = ads.stream()
+        List<Ad> adsDto = adEntities.stream()
                 .map(adDTOMapper::toDto)
                 .toList();
 

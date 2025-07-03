@@ -12,14 +12,14 @@ import org.hibernate.annotations.OnDeleteAction;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Ad {
+public class AdEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer id; // id объявления
 
-    @OneToOne(mappedBy = "ad", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "adEntity", cascade = CascadeType.ALL)
     private AdImage image;
 
     private Integer price;
@@ -29,5 +29,5 @@ public class Ad {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private User user;
+    private UserEntity userEntity;
 }

@@ -1,22 +1,22 @@
 package ru.skypro.homework.utils;
 
-import ru.skypro.homework.model.Ad;
-import ru.skypro.homework.model.User;
+import ru.skypro.homework.model.AdEntity;
+import ru.skypro.homework.model.UserEntity;
 
 public class ImageURLGenerator {
-    public static String generateImageUrl(Ad ad) {
-        if (ad.getId() != null && ad.getId() > 0 && ad.getImage() != null) {
-            return String.format("/ads/%d/image", ad.getId());
+    public static String generateImageUrl(AdEntity adEntity) {
+        if (adEntity.getId() != null && adEntity.getId() > 0 && adEntity.getImage() != null) {
+            return String.format("/adEntities/%d/image", adEntity.getId());
         } else {
-            return "/ads-images/default-ad-image.jpeg";
+            return "/adEntities-images/default-adEntity-image.jpeg";
         }
     }
 
-    public static String generateImageUrl(User user) {
-        if (user.getId() != null && user.getId() > 0 && user.getImage() != null) {
-            return String.format("/users/%d/image", user.getId());
+    public static String generateImageUrl(UserEntity userEntity) {
+        if (userEntity.getId() != null && userEntity.getId() > 0 && userEntity.getImage() != null) {
+            return String.format("/users/%d/image", userEntity.getId());
         } else {
-            return "/users-images/default-user-image.jpeg";
+            return "/users-images/default-userEntity-image.jpeg";
         }
     }
 }

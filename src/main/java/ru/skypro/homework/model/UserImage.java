@@ -26,5 +26,5 @@ public class UserImage {
     @OneToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
-    private User user;
+    private UserEntity userEntity;
 }

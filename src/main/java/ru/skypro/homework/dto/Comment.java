@@ -5,7 +5,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentDTO {
+public class Comment {
 
     private Integer author; // id автора комментария
     private String authorImage;
