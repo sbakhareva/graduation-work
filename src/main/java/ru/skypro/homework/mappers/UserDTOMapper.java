@@ -3,6 +3,7 @@ package ru.skypro.homework.mappers;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.UserDTO;
 import ru.skypro.homework.model.User;
+import ru.skypro.homework.model.UserImage;
 
 import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
 
@@ -12,7 +13,7 @@ import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
 @Component
 public class UserDTOMapper {
 
-    public User fromDto(UserDTO userDTO) {
+    public User fromDto(UserDTO userDTO, UserImage userImage) {
         if (userDTO == null) {
             return null;
         }
@@ -22,7 +23,7 @@ public class UserDTOMapper {
                 .lastName(userDTO.getLastName())
                 .phone(userDTO.getPhone())
                 .role(userDTO.getRole())
-                // тут будет преобразование ссылки на аватар в аватар
+                .image(userImage) // та же ситуация, что и в AdDTOMapper
                 .build();
     }
 

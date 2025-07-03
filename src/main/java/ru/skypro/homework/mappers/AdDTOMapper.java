@@ -3,6 +3,7 @@ package ru.skypro.homework.mappers;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.AdDTO;
 import ru.skypro.homework.model.Ad;
+import ru.skypro.homework.model.AdImage;
 import ru.skypro.homework.model.User;
 
 import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
@@ -27,7 +28,7 @@ public class AdDTOMapper {
     }
 
 
-    Ad fromDto(AdDTO adDTO, User user) {
+    Ad fromDto(AdDTO adDTO, User user, AdImage adImage) {
         if (adDTO == null) {
             return null;
         }
@@ -36,6 +37,9 @@ public class AdDTOMapper {
                 .title(adDTO.getTitle())
                 .description("Описания пока нет, добавьте его!")
                 .user(user)
+                .image(adImage) // для Жени: тут пока такое решение,
+                // когда будут готовы сервисы уже лучше подумаю, норм или нет
                 .build();
     }
+
 }
