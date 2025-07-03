@@ -32,5 +32,5 @@ public class UserEntity {
     private UserImage image;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "userEntity")
-    private List<AdEntity> adEntities;
+    private List<AdEntity> ads;
 }
