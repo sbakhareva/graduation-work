@@ -33,7 +33,7 @@ public class WebSecurityConfig {
     public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
         UserDetails user =
                 User.builder()
-                        .username("userEntity@gmail.com")
+                        .username("user@gmail.com")
                         .password("password")
                         .passwordEncoder(passwordEncoder::encode)
                         .roles("USER")
@@ -58,7 +58,7 @@ public class WebSecurityConfig {
                         authorization ->
                                 authorization
                                         .requestMatchers(AUTH_WHITELIST).permitAll()
-                                        .requestMatchers("/adEntities/**", "/users/**").authenticated())
+                                        .requestMatchers("/ads/**", "/users/**").authenticated())
                 .httpBasic((Customizer.withDefaults()));
 
         return http.build();

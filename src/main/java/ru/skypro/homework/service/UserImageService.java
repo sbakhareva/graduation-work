@@ -63,7 +63,7 @@ public class UserImageService {
         }
 
         UserImage userImage = getUserImage(userId);
-        userImage.setUserEntity(user.get());
+        userImage.setUser(user.get());
         userImage.setFilePath(filePath.toString());
         userImage.setFileSize(userImage.getFileSize());
         userImage.setMediaType(image.getContentType());
@@ -77,7 +77,7 @@ public class UserImageService {
     }
 
     public UserImage getUserImage(Integer userId) {
-        return userImageRepository.findByUserEntityId(userId)
+        return userImageRepository.findByUserId(userId)
                 .orElseThrow(() -> new NoImagesFoundException("Фото пользователя по id " + userId + " не найдено."));
     }
 

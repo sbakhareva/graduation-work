@@ -19,7 +19,7 @@ public class AdEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer id; // id объявления
 
-    @OneToOne(mappedBy = "adEntity", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "ad", cascade = CascadeType.ALL)
     private AdImage image;
 
     private Integer price;

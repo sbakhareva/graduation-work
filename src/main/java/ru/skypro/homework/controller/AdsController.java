@@ -5,13 +5,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
+import ru.skypro.homework.mappers.CreateOrUpdateAdDTOMapper;
+import ru.skypro.homework.model.AdEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/adEntities")
+@RequestMapping("/ads")
 public class AdsController {
+
+    private CreateOrUpdateAdDTOMapper mapper = new CreateOrUpdateAdDTOMapper();
 
     @GetMapping
     @Operation(summary = "Получение всех объявлений", tags = {"Объявления"})
@@ -21,9 +25,9 @@ public class AdsController {
 
     @PostMapping
     @Operation(summary = "Добавление объявления", tags = {"Объявления"})
-    public Ad addAd(@RequestBody Ad ad,
+    public Ad addAd(@RequestBody CreateOrUpdateAd createOrUpdateAd,
                     @RequestParam MultipartFile adImage) {
-        return new Ad(1, "image", 123, 50, "adEntity");
+        return mapper.updateEntityFromDto(createOrUpdateAd, new AdEntity());
     }
 
     @GetMapping("/{id}")

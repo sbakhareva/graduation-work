@@ -66,7 +66,7 @@ public class AdImageService {
         }
 
         AdImage adImage = getAdImage(adId);
-        adImage.setAdEntity(ad.get());
+        adImage.setAd(ad.get());
         adImage.setFilePath(filePath.toString());
         adImage.setFileSize(adImage.getFileSize());
         adImage.setMediaType(image.getContentType());
@@ -80,7 +80,7 @@ public class AdImageService {
     }
 
     public AdImage getAdImage(Integer adId) {
-        return adImageRepository.findByAdEntityId(adId)
+        return adImageRepository.findByAdId(adId)
                 .orElseThrow(() -> new NoImagesFoundException("Фотографии к объявлению по id " + adId + " не найдены."));
 
     }

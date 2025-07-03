@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface AdImageRepository extends JpaRepository<AdImage, Long> {
-    Optional<AdImage> findByAdEntityId(Integer id);
+    Optional<AdImage> findByAdId(Integer id);
 }
