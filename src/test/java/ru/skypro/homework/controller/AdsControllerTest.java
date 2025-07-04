@@ -13,7 +13,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.skypro.homework.dto.Ad;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,25 +41,39 @@ class AdsControllerTest {
     }
 
     // TODO: ложусь спасть, не получилось написать тест
+    // Тест исправил , но пришлось поправить контролер , в контролере оставил пометку
     @Test
-    @WithMockUser(username = "user@gmail.com")
+    @WithMockUser(username = "user@gmail.com", roles = {"USER"})
     void addAd() throws Exception {
         JSONObject adJson = new JSONObject();
         adJson.put("price", 37);
         adJson.put("description", "ad");
         adJson.put("title", "title");
 
-        MockMultipartFile adImage = new MockMultipartFile("adImage", "image.jpg", "image/jpeg", "some-image-content".getBytes());
+        MockMultipartFile adPart = new MockMultipartFile(
+                "ad",
+                "ad.json",
+                "application/json",
+                adJson.toString().getBytes(StandardCharsets.UTF_8)
+        );
+
+        MockMultipartFile adImage = new MockMultipartFile(
+                "adImage",
+                "image.jpg",
+                "image/jpeg",
+                "some-image-content".getBytes()
+        );
 
         mockMvc.perform(MockMvcRequestBuilders
                         .multipart("/ads")
+                        .file(adPart)
                         .file(adImage)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
-                        .param("ad", adJson.toString())
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(status().isOk());
-
     }
+
 
     @Test
     @WithMockUser(username = "user@gmail.com")

@@ -10,6 +10,7 @@ import ru.skypro.homework.model.AdEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/ads")
@@ -22,13 +23,16 @@ public class AdsController {
     public Ads getAllAds() {
         return new Ads(1, List.of(new Ad(1, "image", 123, 50, "adEntity")));
     }
-
-    @PostMapping
+    // Оба параметра принимаются как part (multipart/form-data).
+    //Имя JSON-part — "ad", тип — application/json.
+    //Тест работает
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Добавление объявления", tags = {"Объявления"})
-    public Ad addAd(@RequestBody CreateOrUpdateAd createOrUpdateAd,
-                    @RequestParam MultipartFile adImage) {
+    public Ad addAd(@RequestPart("ad") CreateOrUpdateAd createOrUpdateAd,
+                    @RequestPart("adImage") MultipartFile adImage) {
         return mapper.updateEntityFromDto(createOrUpdateAd, new AdEntity());
     }
+
 
     @GetMapping("/{id}")
     @Operation(summary = "Получение информации об объявлении", tags = {"Объявления"})
