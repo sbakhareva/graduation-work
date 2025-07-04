@@ -1,6 +1,5 @@
 package ru.skypro.homework.controller;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +9,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import ru.skypro.homework.dto.Ad;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -37,7 +33,6 @@ class AdsControllerTest {
                 .andExpect(jsonPath("$.results[0].title").value("adEntity"));
     }
 
-    // TODO: ложусь спасть, не получилось написать тест
     @Test
     @WithMockUser(username = "user@gmail.com")
     void addAd() throws Exception {
