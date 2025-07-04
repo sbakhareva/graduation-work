@@ -143,7 +143,10 @@ class AdsControllerTest {
         mockMvc.perform(multipart("/ads/1/image")
                         .file(adImage)
                         .with(csrf())
-                        .with(request -> { request.setMethod("PATCH"); return request; }))
+                        .with(request -> {
+                            request.setMethod("PATCH");
+                            return request;
+                        }))
                 .andExpect(status().isOk());
     }
 
