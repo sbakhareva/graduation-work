@@ -4,14 +4,12 @@ import lombok.*;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
 public class Ads {
 
     private Integer count;
     private List<Ad> results;
 }
+

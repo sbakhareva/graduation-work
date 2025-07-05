@@ -3,18 +3,18 @@ package ru.skypro.homework.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
+import ru.skypro.homework.dto.Login;
 import ru.skypro.homework.dto.Role;
 
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Table(name = "users")
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
-public class User {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +25,12 @@ public class User {
     private String firstName;
     private String lastName;
     private String phone;
+    private String password;
     private Role role;
-    private String image; // ссылка на аватар пользователя
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserImage image;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Ad> ads;
+    private List<AdEntity> ads;
 }

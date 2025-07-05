@@ -2,12 +2,9 @@ package ru.skypro.homework.dto;
 
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
 public class Comment {
 
     private Integer author; // id автора комментария

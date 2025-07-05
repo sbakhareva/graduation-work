@@ -5,23 +5,23 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import ru.skypro.homework.dto.Ads;
 
 @Entity
-@Getter
-@Setter
+@Table(name = "ads")
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
-public class Ad {
+public class AdEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer id; // id объявления
 
+    @OneToOne(mappedBy = "ad", cascade = CascadeType.ALL)
     private AdImage image;
+
     private Integer price;
     private String title;
     private String description;
@@ -29,5 +29,5 @@ public class Ad {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private User user;
+    private UserEntity user;
 }

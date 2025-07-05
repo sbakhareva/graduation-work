@@ -7,18 +7,17 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Getter
-@Setter
+@Table(name = "comments")
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
-public class Comment {
+public class CommentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Integer commentId; // id комментария
+    private Integer id; // id комментария
 
     private Integer authorId; // id автора комментария
     private String authorImage;
@@ -29,5 +28,5 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "ad_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Ad ad;
+    private AdEntity ad;
 }

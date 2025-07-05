@@ -5,12 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Getter
-@Setter
+@Entity
+@Table(name = "user_images")
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode
 public class UserImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,5 +26,5 @@ public class UserImage {
     @OneToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
-    private User user;
+    private UserEntity user;
 }
