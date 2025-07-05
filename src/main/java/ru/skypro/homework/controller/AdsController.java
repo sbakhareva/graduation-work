@@ -34,7 +34,7 @@ public class AdsController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Добавление объявления", tags = {"Объявления"})
     public Ad addAd(@RequestPart("properties") CreateOrUpdateAd createOrUpdateAd,
-                    @RequestPart(value = "image", required = false) MultipartFile adImage,
+                    @RequestPart(value = "image") MultipartFile adImage,
                     Authentication authentication) {
         String email = authentication.getName();
         return adsService.addAd(createOrUpdateAd, adImage, email);
