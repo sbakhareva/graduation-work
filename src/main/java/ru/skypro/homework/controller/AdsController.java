@@ -6,24 +6,23 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
-import ru.skypro.homework.mappers.CreateOrUpdateAdDTOMapper;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 import org.springframework.http.MediaType;
 import ru.skypro.homework.service.AdsService;
+import ru.skypro.homework.service.CommentsService;
 
 @RestController
 @CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/ads")
 public class AdsController {
 
-    private final CreateOrUpdateAdDTOMapper mapper = new CreateOrUpdateAdDTOMapper();
     private final AdsService adsService;
+    private final CommentsService commentsService;
 
-    public AdsController(AdsService adsService) {
+    public AdsController(AdsService adsService,
+                         CommentsService commentsService) {
         this.adsService = adsService;
+        this.commentsService = commentsService;
     }
 
     @GetMapping
@@ -81,7 +80,7 @@ public class AdsController {
     @GetMapping("/{id}/comments")
     @Operation(summary = "Получение комментариев объявления", tags = {"Комментарии"})
     public Comments getComments(@PathVariable(value = "id", required = true) Integer id) {
-        return adsService.getComments(id);
+        return commentsService.getComments(id);
     }
 
     @PostMapping("/{id}/comments")
@@ -90,13 +89,14 @@ public class AdsController {
                               @RequestBody CreateOrUpdateComment comment,
                               Authentication authentication) {
         String email = authentication.getName();
-        return adsService.addComment(id, comment, email);
+        return commentsService.addComment(id, comment, email);
     }
 
     @DeleteMapping("/{adId}/comments/{commentId}")
     @Operation(summary = "Удаление комментария", tags = {"Комментарии"})
     public ResponseEntity<?> deleteComment(@PathVariable(value = "adId", required = true) Integer adId,
                                            @PathVariable(value = "commentId", required = true) Integer commentId) {
+        commentsService.deleteComment(adId, commentId);
         return ResponseEntity.noContent().build();
     }
 
@@ -104,7 +104,9 @@ public class AdsController {
     @Operation(summary = "Обновление комментария", tags = {"Комментарии"})
     public Comment updateComment(@PathVariable(value = "adId", required = true) Integer adId,
                                  @PathVariable(value = "commentId", required = true) Integer commentId,
-                                 @RequestBody CreateOrUpdateComment comment) {
-        return new Comment(1, "image", "author", LocalDateTime.now().getMinute(), 1276, "text");
+                                 @RequestBody CreateOrUpdateComment comment,
+                                 Authentication authentication) {
+        String email = authentication.getName();
+        return commentsService.updateComment(adId, commentId, comment, email);
     }
 }

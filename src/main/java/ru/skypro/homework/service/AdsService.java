@@ -27,12 +27,10 @@ import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
 public class AdsService {
 
     private final AdDTOMapper adDTOMapper = new AdDTOMapper();
-    private final CommentDTOMapper commentDTOMapper = new CommentDTOMapper();
     private final AdsDTOMapper adsDTOMapper = new AdsDTOMapper(adDTOMapper);
     private final ExtendedAdDTOMapper extendedAdDTOMapper = new ExtendedAdDTOMapper();
     private final CreateOrUpdateAdDTOMapper createOrUpdateAdDTOMapper = new CreateOrUpdateAdDTOMapper();
-    private final CommentsDTOMapper commentsDTOMapper = new CommentsDTOMapper(commentDTOMapper);
-    private final CreateOrUpdateCommentDTOMapper createOrUpdateCommentDTOMapper = new CreateOrUpdateCommentDTOMapper(commentDTOMapper);
+
 
     @Value("${default.ad.image.path}")
     private String defaultAdImagePath;
@@ -41,17 +39,15 @@ public class AdsService {
     private final AdImageService adImageService;
     private final UserRepository userRepository;
     private final AdImageRepository adImageRepository;
-    private final CommentRepository commentRepository;
 
     public AdsService(AdRepository adRepository,
                       AdImageService adImageService,
                       UserRepository userRepository,
-                      AdImageRepository adImageRepository, CommentRepository commentRepository) {
+                      AdImageRepository adImageRepository) {
         this.adRepository = adRepository;
         this.adImageService = adImageService;
         this.userRepository = userRepository;
         this.adImageRepository = adImageRepository;
-        this.commentRepository = commentRepository;
     }
 
     public Ads getAllAds() {
@@ -128,29 +124,5 @@ public class AdsService {
                 .orElseThrow(() -> new NoImagesFoundException("Не найдено изображений с объявления с id " + id));
         ad.setImage(newImage);
         return generateImageUrl(ad);
-    }
-
-    public Comments getComments(Integer id) {
-        if (!adRepository.existsById(id)) {
-            throw new NoAdsFoundException("По id " + id + " не найдено объявлений.");
-        }
-        List<CommentEntity> comments = commentRepository.findAllByAdId(id);
-        if (comments.isEmpty()) {
-            throw new NoCommentsException("К этому объявлению пока нет комментариев.");
-        }
-        return commentsDTOMapper.toDto(comments);
-    }
-
-    public Comment addComment(Integer id, CreateOrUpdateComment createOrUpdateComment, String email) {
-        UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoUsersFoundException("Не найдено пользователя с именем пользователя " + email));
-        AdEntity ad = adRepository.findById(id)
-                .orElseThrow(() -> new NoAdsFoundException("Не найдено объявлений с id " + id));
-        return createOrUpdateCommentDTOMapper.createEntityFromDto(createOrUpdateComment, user, ad);
-    }
-
-    public void deleteComment(Integer adId, Integer commentId) {
-        AdEntity ad = adRepository.findById(adId)
-                .orElseThrow(() -> new NoAdsFoundException("Не найдено объявлений с id " + adId));
     }
 }
