@@ -1,6 +1,5 @@
 package ru.skypro.homework.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,9 +8,9 @@ import ru.skypro.homework.dto.*;
 import ru.skypro.homework.mappers.CreateOrUpdateAdDTOMapper;
 import ru.skypro.homework.model.AdEntity;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+
 import org.springframework.http.MediaType;
 import ru.skypro.homework.model.AdImage;
 import ru.skypro.homework.model.UserEntity;
@@ -84,7 +83,7 @@ public class AdsController {
     @DeleteMapping("/{adId}/comments/{commentId}")
     @Operation(summary = "Удаление комментария", tags = {"Комментарии"})
     public ResponseEntity<?> deleteComment(@PathVariable(value = "adId", required = true) Integer adId,
-                              @PathVariable(value = "commentId", required = true) Integer commentId) {
+                                           @PathVariable(value = "commentId", required = true) Integer commentId) {
         return ResponseEntity.noContent().build();
     }
 
