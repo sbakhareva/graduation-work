@@ -25,19 +25,13 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder encoder;
     private final RegisterDTOMapper registerDTOMapper = new RegisterDTOMapper();
     private final UserRepository userRepository;
-    private final UserImageService userImageService;
-    private final UserImageRepository userImageRepository;
 
     public AuthServiceImpl(AdsOnlineUserDetailsService adsOnlineUserDetailsService,
                            PasswordEncoder passwordEncoder,
-                           UserRepository userRepository,
-                           UserImageService userImageService,
-                           UserImageRepository userImageRepository) {
+                           UserRepository userRepository) {
         this.adsOnlineUserDetailsService = adsOnlineUserDetailsService;
         this.encoder = passwordEncoder;
         this.userRepository = userRepository;
-        this.userImageService = userImageService;
-        this.userImageRepository = userImageRepository;
     }
 
     @Override

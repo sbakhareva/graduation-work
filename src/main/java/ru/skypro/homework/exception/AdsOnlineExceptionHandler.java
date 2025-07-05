@@ -18,6 +18,7 @@ public class AdsOnlineExceptionHandler {
     public ResponseEntity<String> handleAllExceptions(Exception e) {
         logger.warn(e.getMessage(), e);
         ResponseStatus status = e.getClass().getAnnotation(ResponseStatus.class);
-        return new ResponseEntity<>(e.getMessage(), Objects.requireNonNull(status).code());
+        assert status != null;
+        return new ResponseEntity<>(e.getMessage(), status.code());
     }
 }
