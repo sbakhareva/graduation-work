@@ -34,8 +34,8 @@ public class AdsService {
     private final CommentsDTOMapper commentsDTOMapper = new CommentsDTOMapper(commentDTOMapper);
     private final CreateOrUpdateCommentDTOMapper createOrUpdateCommentDTOMapper = new CreateOrUpdateCommentDTOMapper(commentDTOMapper);
 
-    @Value("${adEntities.image.dir.path}")
-    private AdImage defaultAdImage;
+    @Value("${default.ad.image.path}")
+    private String defaultAdImagePath;
 
     private final AdRepository adRepository;
     private final AdImageService adImageService;
@@ -62,18 +62,31 @@ public class AdsService {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundException("Пользователей с именем пользователя " + email + " не найдено."));
         AdEntity adEntity = AdEntity.builder()
-                .image(defaultAdImage)
                 .price(createOrUpdateAd.getPrice())
                 .title(createOrUpdateAd.getTitle())
                 .description(createOrUpdateAd.getDescription())
                 .user(user)
                 .build();
+
         adRepository.save(adEntity);
-        try {
-            adImageService.uploadAdImage(adEntity.getId(), image);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+
+        if (image != null && !image.isEmpty()) {
+            try {
+                adImageService.uploadAdImage(adEntity.getId(), image);
+            } catch (IOException e) {
+                throw new RuntimeException("Ошибка при загрузке изображения", e);
+            }
+        } else {
+            AdImage defaultImage = new AdImage();
+            defaultImage.setFilePath(defaultAdImagePath);
+            defaultImage.setFileSize(0);
+            defaultImage.setMediaType("image/jpeg");
+            defaultImage.setAd(adEntity);
+
+            adEntity.setImage(defaultImage);
+            adRepository.save(adEntity);
         }
+
         return adDTOMapper.toDto(adEntity);
     }
 
@@ -98,7 +111,7 @@ public class AdsService {
 
     public Ads getAdsMe(String email) {
         UserEntity user = userRepository.findByEmail(email)
-                        .orElseThrow(() -> new NoUsersFoundException("Пользователей с именем пользователя " + email + " не найдено."));
+                .orElseThrow(() -> new NoUsersFoundException("Пользователей с именем пользователя " + email + " не найдено."));
         return adsDTOMapper.toDto(adRepository.findAllByUserId(user.getId()));
     }
 
@@ -132,7 +145,7 @@ public class AdsService {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundException("Не найдено пользователя с именем пользователя " + email));
         AdEntity ad = adRepository.findById(id)
-                        .orElseThrow(() -> new NoAdsFoundException("Не найдено объявлений с id " + id));
+                .orElseThrow(() -> new NoAdsFoundException("Не найдено объявлений с id " + id));
         return createOrUpdateCommentDTOMapper.createEntityFromDto(createOrUpdateComment, user, ad);
     }
 
