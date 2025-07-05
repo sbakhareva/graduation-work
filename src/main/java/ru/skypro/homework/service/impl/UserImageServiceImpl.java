@@ -65,7 +65,6 @@ public class UserImageServiceImpl implements UserImageService {
         
         logger.info("Изображение успешно загружено для пользователя с ID: {}. Путь: {}", userId, filePath);
     }
-
     @Override
     public UserImage getUserImage(Integer userId) {
         logger.debug("Получение изображения для пользователя с ID: {}", userId);

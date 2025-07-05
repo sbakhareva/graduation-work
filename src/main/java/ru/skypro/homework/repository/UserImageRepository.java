@@ -7,7 +7,7 @@ import ru.skypro.homework.model.UserImage;
 import java.util.Optional;
 
 @Repository
-public interface UserImageRepository extends JpaRepository<UserImage, Long> {
+public interface UserImageRepository extends JpaRepository<UserImage, Integer> {
 
     Optional<UserImage> findByUserId(Integer id);
 }
