@@ -14,7 +14,7 @@ import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
 @Component
 public class AdDTOMapper {
 
-    Ad toDto(AdEntity ad) {
+    public Ad toDto(AdEntity ad) {
         if (ad == null) {
             return null;
         }
@@ -28,7 +28,7 @@ public class AdDTOMapper {
     }
 
 
-    AdEntity fromDto(Ad ad, UserEntity user, AdImage adImage) {
+    public AdEntity fromDto(Ad ad, UserEntity user, AdImage adImage) {
         if (ad == null) {
             return null;
         }
@@ -37,8 +37,7 @@ public class AdDTOMapper {
                 .title(ad.getTitle())
                 .description("Описания пока нет, добавьте его!")
                 .user(user)
-                .image(adImage) // для Жени: тут пока такое решение,
-                // когда будут готовы сервисы уже лучше подумаю, норм или нет
+                .image(adImage)
                 .build();
     }
 

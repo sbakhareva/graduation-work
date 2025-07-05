@@ -11,6 +11,7 @@ import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
 
 @RestController
+@CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/users")
 @Tag(name = "Пользователи")
 public class UserController {

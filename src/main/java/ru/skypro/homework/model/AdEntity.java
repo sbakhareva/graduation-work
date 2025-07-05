@@ -6,6 +6,8 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.List;
+
 @Entity
 @Table(name = "ads")
 @Data
@@ -30,4 +32,7 @@ public class AdEntity {
     @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private UserEntity user;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "ad")
+    private List<CommentEntity> comments;
 }
