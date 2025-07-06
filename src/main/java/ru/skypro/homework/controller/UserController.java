@@ -26,8 +26,14 @@ public class UserController {
 
     @PostMapping("/set_password")
     @Operation(summary = "Обновление пароля")
-    public void setPassword(@RequestBody NewPassword newPassword) {
-        ResponseEntity.ok();
+    public ResponseEntity<?> setPassword(@RequestBody NewPassword newPassword,
+                                         Authentication authentication) {
+        String email = authentication.getName();
+        if (userService.updatePassword(newPassword, email)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @GetMapping("/me")

@@ -36,18 +36,15 @@ public class UserService {
         this.userImageService = userImageService;
     }
 
-    public boolean updatePassword(NewPassword newPassword) {
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity userEntity = userRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+    public boolean updatePassword(NewPassword newPassword, String email) {
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NoUsersFoundException("Пользователь с именем пользователя " + email + " не найден"));
 
         if (!passwordEncoder.matches(newPassword.getCurrentPassword(), userEntity.getPassword())) {
             return false;
         }
 
         userEntity.setPassword(passwordEncoder.encode(newPassword.getNewPassword()));
-        userRepository.save(userEntity);
-
         return true;
     }
 
