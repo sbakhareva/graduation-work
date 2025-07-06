@@ -35,7 +35,6 @@ public class UserService {
                 userEntity.getImage() != null ? userEntity.getImage().getFilePath() : null
         );
     }
-
     public User getCurrentUser() {
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity userEntity = userRepository.findByEmail(currentUserEmail)
