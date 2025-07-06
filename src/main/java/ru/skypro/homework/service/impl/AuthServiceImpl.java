@@ -1,13 +1,13 @@
 package ru.skypro.homework.service.impl;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.mappers.RegisterDTOMapper;
 import ru.skypro.homework.model.UserEntity;
-import ru.skypro.homework.model.UserImage;
-import ru.skypro.homework.repository.UserImageRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdsOnlineUserDetailsService;
 import ru.skypro.homework.service.AuthService;
@@ -16,10 +16,10 @@ import ru.skypro.homework.service.UserImageService;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class AuthServiceImpl implements AuthService {
 
-    @Value("${default.user.image.path}")
-    private String defaultUserImagePath;
+    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     private final AdsOnlineUserDetailsService adsOnlineUserDetailsService;
     private final PasswordEncoder encoder;
@@ -35,36 +35,27 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public boolean login(String userName, String password) {
-        Optional<UserEntity> optionalUser = userRepository.findByEmail(userName);
-        if (optionalUser.isEmpty()) {
-            return false;
-        }
-        if (!userRepository.existsByEmail(userName)) {
+    public boolean login(String username, String password) {
+        if (!userRepository.existsByEmail(username)) {
+            logger.error("Пользователь с именем пользователя {} не найден", username);
             return false;
         }
 
-        UserEntity user = optionalUser.get();
+        UserEntity user = userRepository.findByEmail(username).get();
         return encoder.matches(password, user.getPassword());
     }
 
     @Override
     public boolean register(Register register) {
         if (userRepository.existsByEmail(register.getUsername())) {
+            logger.info("Пользователь с именем пользователя {} уже существует", register.getUsername());
             return false;
         }
 
         UserEntity user = registerDTOMapper.fromDTO(register, encoder);
 
-        UserImage defaultImage = new UserImage();
-        defaultImage.setFilePath(defaultUserImagePath);
-        defaultImage.setFileSize(0);
-        defaultImage.setMediaType("image/jpeg");
-        defaultImage.setUser(user);
-
-        user.setImage(defaultImage);
         userRepository.save(user);
-
+        logger.info("Пользователь {} успешно добавлен", user.getEmail());
         return true;
     }
 }

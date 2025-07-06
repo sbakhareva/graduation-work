@@ -29,6 +29,7 @@ public class UserController {
     public ResponseEntity<?> setPassword(@RequestBody NewPassword newPassword,
                                          Authentication authentication) {
         String email = authentication.getName();
+        System.out.println(email);
         if (userService.updatePassword(newPassword, email)) {
             return ResponseEntity.ok().build();
         } else {

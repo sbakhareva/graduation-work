@@ -1,6 +1,8 @@
 package ru.skypro.homework.service;
 
-import org.springframework.security.core.context.SecurityContextHolder;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,11 +17,14 @@ import ru.skypro.homework.model.UserEntity;
 import ru.skypro.homework.model.UserImage;
 import ru.skypro.homework.repository.UserImageRepository;
 import ru.skypro.homework.repository.UserRepository;
+import ru.skypro.homework.service.impl.AuthServiceImpl;
 
 import java.io.IOException;
 
 @Service
 public class UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserDTOMapper userDTOMapper = new UserDTOMapper();
     private final UpdateUserDTOMapper updateUserDTOMapper = new UpdateUserDTOMapper();
@@ -41,16 +46,19 @@ public class UserService {
                 .orElseThrow(() -> new NoUsersFoundException("Пользователь с именем пользователя " + email + " не найден"));
 
         if (!passwordEncoder.matches(newPassword.getCurrentPassword(), userEntity.getPassword())) {
+            logger.warn("Текущий и старый введённые пароли не совпадают.");
             return false;
         }
 
         userEntity.setPassword(passwordEncoder.encode(newPassword.getNewPassword()));
+        logger.info("Пароль успешно обновлен.");
         return true;
     }
 
     public User getUser(String email) {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundException("Пользователей с именем пользователя " + email + " не найдено"));
+
         return userDTOMapper.toDTO(userEntity);
     }
 
@@ -61,24 +69,38 @@ public class UserService {
         return updateUserDTOMapper.updateEntityFromDto(updateUser, userEntity);
     }
 
+    @Transactional
     public boolean updateUserImage(MultipartFile newImage, String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundException("Пользователей с именем пользователя " + email + " не найдено"));
 
-        userImageRepository.deleteByUserId(user.getId());
+        if (userImageRepository.existsByUserId(user.getId())) {
+            userImageRepository.deleteByUserId(user.getId());
+            logger.info("Старое изображение пользователя {} удалено", email);
 
+            try {
+                userImageService.uploadUserImage(user.getId(), newImage);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                UserImage image = userImageRepository.findByUserId(user.getId())
+                        .orElseThrow(() -> new NoImagesFoundException("Не найдено фото для пользователя с id " + user.getId()));
+                user.setImage(image);
+                return true;
+            } catch (Exception e) {
+                logger.error("Произошла ошибка: {}", e.getMessage());
+                return false;
+            }
+        }
         try {
             userImageService.uploadUserImage(user.getId(), newImage);
-            UserImage image = userImageRepository.findByUserId(user.getId())
-                    .orElseThrow(() -> new NoImagesFoundException("Не найдено фото для пользователя с id " + user.getId()));
-            user.setImage(image);
-            return true;
         } catch (IOException e) {
-            System.out.println("Ошибка при загрузке изображения: " + e.getMessage());
-            return false;
-        } catch (Exception e) {
-            System.out.println("Произошла ошибка: " + e.getMessage());
-            return false;
+            logger.error("Ошибка при сохранении изображения");
         }
+        UserImage image = userImageRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new NoImagesFoundException("Не найдено фото для пользователя с id " + user.getId()));
+        user.setImage(image);
+        return true;
     }
 }

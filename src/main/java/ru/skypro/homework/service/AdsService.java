@@ -70,17 +70,8 @@ public class AdsService {
             try {
                 adImageService.uploadAdImage(adEntity.getId(), image);
             } catch (IOException e) {
-                throw new RuntimeException("Ошибка при загрузке изображения", e);
+                System.out.println(("Ошибка при загрузке изображения"));
             }
-        } else {
-            AdImage defaultImage = new AdImage();
-            defaultImage.setFilePath(defaultAdImagePath);
-            defaultImage.setFileSize(0);
-            defaultImage.setMediaType("image/jpeg");
-            defaultImage.setAd(adEntity);
-
-            adEntity.setImage(defaultImage);
-            adRepository.save(adEntity);
         }
 
         return adDTOMapper.toDto(adEntity);

@@ -7,7 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.exception.FileSizeExceededException;
 import ru.skypro.homework.exception.InvalidFileTypeException;
 import ru.skypro.homework.exception.NoAdsFoundException;
-import ru.skypro.homework.exception.NoImagesFoundException;
 import ru.skypro.homework.model.AdEntity;
 import ru.skypro.homework.model.AdImage;
 import ru.skypro.homework.repository.AdImageRepository;
@@ -81,7 +80,7 @@ public class AdImageService {
 
     public AdImage getAdImage(Integer adId) {
         return adImageRepository.findByAdId(adId)
-                .orElseThrow(() -> new NoImagesFoundException("Фотографии к объявлению по id " + adId + " не найдены."));
+                .orElse(new AdImage());
 
     }
 

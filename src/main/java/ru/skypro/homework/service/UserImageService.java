@@ -39,6 +39,19 @@ public class UserImageService {
         this.userRepository = userRepository;
     }
 
+    public void setDefaultUserImage(UserEntity user) throws IOException {
+        File defaultImageFile = new File("src/main/resources/static/images/default-user-image.jpeg");
+
+        UserImage defaultImage = new UserImage();
+        defaultImage.setUser(user);
+        defaultImage.setFilePath(defaultImageFile.getPath());
+        defaultImage.setFileSize(defaultImageFile.length());
+        defaultImage.setMediaType("image/jpeg");
+        defaultImage.setPreview(generateImagePreview(Path.of(defaultImage.getFilePath())));
+
+        userImageRepository.save(defaultImage);
+    }
+
     public void uploadUserImage(Integer userId, MultipartFile image) throws IOException {
         if (!ALLOWED_TYPES.contains(image.getContentType())) {
             throw new InvalidFileTypeException("Неверный тип файла");
@@ -78,7 +91,7 @@ public class UserImageService {
 
     public UserImage getUserImage(Integer userId) {
         return userImageRepository.findByUserId(userId)
-                .orElseThrow(() -> new NoImagesFoundException("Фото пользователя по id " + userId + " не найдено."));
+                .orElse(new UserImage());
     }
 
     private byte[] generateImagePreview(Path filePath) throws IOException {
@@ -86,12 +99,19 @@ public class UserImageService {
              BufferedInputStream bis = new BufferedInputStream(is, 1024);
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             BufferedImage image = ImageIO.read(bis);
+            if (image == null) {
+                throw new IOException("Не удалось прочитать изображение из файла: " + filePath);
+            }
 
-            int height = image.getHeight() / (image.getWidth() / 100);
-            BufferedImage preview = new BufferedImage(100, height, image.getType());
+            int previewWidth = 100;
+            int previewHeight = (int) ((double) image.getHeight() / image.getWidth() * previewWidth);
+            BufferedImage preview = new BufferedImage(100, previewHeight, image.getType());
             Graphics2D graphics = preview.createGraphics();
-            graphics.drawImage(image, 0, 0, 100, height, null);
-            graphics.dispose();
+            try {
+                graphics.drawImage(image, 0, 0, 100, previewHeight, null);
+            } finally {
+                graphics.dispose();
+            }
 
             ImageIO.write(preview, getExtension(filePath.getFileName().toString()), baos);
             return baos.toByteArray();
