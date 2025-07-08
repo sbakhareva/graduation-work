@@ -37,7 +37,7 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated())
                 .httpBasic((Customizer.withDefaults()))
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .sessionFixation().newSession()
                         .invalidSessionUrl("/login?session=invalid")
                 )
                 .logout(logout -> logout
