@@ -1,6 +1,6 @@
 package ru.skypro.homework.mappers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.Comment;
 import ru.skypro.homework.dto.CreateOrUpdateComment;
@@ -15,6 +15,7 @@ import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
  * чтобы потом с помощью CommentDTOMapper преобразовать обновленный комментарий в Comment
  */
 @Component
+@Transactional
 public class CreateOrUpdateCommentDTOMapper {
 
     private final CommentDTOMapper commentDTOMapper;

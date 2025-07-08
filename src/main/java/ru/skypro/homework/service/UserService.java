@@ -10,18 +10,18 @@ import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
 import ru.skypro.homework.exception.NoImagesFoundException;
-import ru.skypro.homework.exception.NoUsersFoundException;
+import ru.skypro.homework.exception.NoUsersFoundByEmailException;
 import ru.skypro.homework.mappers.UpdateUserDTOMapper;
 import ru.skypro.homework.mappers.UserDTOMapper;
 import ru.skypro.homework.model.UserEntity;
 import ru.skypro.homework.model.UserImage;
 import ru.skypro.homework.repository.UserImageRepository;
 import ru.skypro.homework.repository.UserRepository;
-import ru.skypro.homework.service.impl.AuthServiceImpl;
 
 import java.io.IOException;
 
 @Service
+@Transactional
 public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -43,7 +43,7 @@ public class UserService {
 
     public boolean updatePassword(NewPassword newPassword, String email) {
         UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoUsersFoundException("Пользователь с именем пользователя " + email + " не найден"));
+                .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
         if (!passwordEncoder.matches(newPassword.getCurrentPassword(), userEntity.getPassword())) {
             logger.warn("Текущий и старый введённые пароли не совпадают.");
@@ -57,14 +57,14 @@ public class UserService {
 
     public User getUser(String email) {
         UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoUsersFoundException("Пользователей с именем пользователя " + email + " не найдено"));
+                .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
         return userDTOMapper.toDTO(userEntity);
     }
 
     public UpdateUser updateUser(UpdateUser updateUser, String email) {
         UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoUsersFoundException("Пользователей с именем пользователя " + email + " не найдено"));
+                .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
         return updateUserDTOMapper.updateEntityFromDto(updateUser, userEntity);
     }
@@ -72,11 +72,16 @@ public class UserService {
     @Transactional
     public boolean updateUserImage(MultipartFile newImage, String email) {
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoUsersFoundException("Пользователей с именем пользователя " + email + " не найдено"));
+                .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
         if (userImageRepository.existsByUserId(user.getId())) {
-            userImageRepository.deleteByUserId(user.getId());
-            logger.info("Старое изображение пользователя {} удалено", email);
+            userImageService.deleteUserImageFile(user.getId());
+            try {
+                userImageRepository.deleteByUserId(user.getId());
+                logger.info("Старое изображение пользователя {} удалено", email);
+            } catch (Exception e) {
+                logger.error("Ошибка при удалении фото пользователя с id {}: {}", user.getId(), e.getMessage(), e);
+            }
 
             try {
                 userImageService.uploadUserImage(user.getId(), newImage);

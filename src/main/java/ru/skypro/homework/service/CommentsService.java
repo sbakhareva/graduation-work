@@ -1,13 +1,12 @@
 package ru.skypro.homework.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.Comment;
 import ru.skypro.homework.dto.Comments;
 import ru.skypro.homework.dto.CreateOrUpdateComment;
-import ru.skypro.homework.exception.NoAdsFoundException;
-import ru.skypro.homework.exception.NoCommentsException;
-import ru.skypro.homework.exception.NoUsersFoundException;
-import ru.skypro.homework.exception.NoneOfYourBusinessException;
+import ru.skypro.homework.dto.Role;
+import ru.skypro.homework.exception.*;
 import ru.skypro.homework.mappers.CommentDTOMapper;
 import ru.skypro.homework.mappers.CommentsDTOMapper;
 import ru.skypro.homework.mappers.CreateOrUpdateCommentDTOMapper;
@@ -21,6 +20,7 @@ import ru.skypro.homework.repository.UserRepository;
 import java.util.List;
 
 @Service
+@Transactional
 public class CommentsService {
 
     private final CommentDTOMapper commentDTOMapper = new CommentDTOMapper();
@@ -39,13 +39,28 @@ public class CommentsService {
         this.userRepository = userRepository;
     }
 
+    private boolean isAdmin(String email) {
+        return userRepository.findByEmail(email)
+                .map(user -> user.getRole() == Role.ADMIN)
+                .orElse(false);
+    }
+
+    public boolean isOwner(Integer commentId, String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NoUsersFoundByEmailException(email));
+
+        return commentRepository.findById(commentId)
+                .map(comment -> comment.getAuthorId().equals(user.getId()))
+                .orElse(false);
+    }
+
     public Comments getComments(Integer id) {
         if (!adRepository.existsById(id)) {
-            throw new NoAdsFoundException("По id " + id + " не найдено объявлений.");
+            throw new NoAdsFoundException(id);
         }
         List<CommentEntity> comments = commentRepository.findAllByAdId(id);
         if (comments.isEmpty()) {
-            throw new NoCommentsException("К этому объявлению пока нет комментариев.");
+            throw new NoCommentsException();
         }
         return commentsDTOMapper.toDto(comments);
     }
@@ -54,21 +69,26 @@ public class CommentsService {
                               CreateOrUpdateComment createOrUpdateComment,
                               String email) {
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoUsersFoundException("Не найдено пользователя с именем пользователя " + email));
+                .orElseThrow(() -> new NoUsersFoundByEmailException(email));
         AdEntity ad = adRepository.findById(id)
-                .orElseThrow(() -> new NoAdsFoundException("Не найдено объявлений с id " + id));
+                .orElseThrow(() -> new NoAdsFoundException(id));
         return createOrUpdateCommentDTOMapper.createEntityFromDto(createOrUpdateComment, user, ad);
     }
 
     public void deleteComment(Integer adId,
-                              Integer commentId) {
-        AdEntity ad = adRepository.findById(adId)
-                .orElseThrow(() -> new NoAdsFoundException("Не найдено объявлений с id " + adId));
+                              Integer commentId,
+                              String email) {
         CommentEntity comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NoCommentsException("У этого объявления пока нет комментариев."));
+                .orElseThrow(NoCommentsException::new);
+
         if (!comment.getAd().getId().equals(adId)) {
             throw new IllegalArgumentException("Комментарий не принадлежит объявлению с id " + adId);
         }
+
+        if (!isOwner(commentId, email)&& !isAdmin(email)) {
+            throw new NoneOfYourBusinessException("Вы не можете удалить этот комментарий");
+        }
+
         commentRepository.delete(comment);
     }
 
@@ -76,21 +96,20 @@ public class CommentsService {
                                  Integer commentId,
                                  CreateOrUpdateComment updateComment,
                                  String email) {
-        UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoUsersFoundException("Пользователей с именем пользователя " + email + " не найдено."));
         AdEntity ad = adRepository.findById(adId)
-                .orElseThrow(() -> new NoAdsFoundException("Не найдено объявлений с id " + adId));
+                .orElseThrow(() -> new NoAdsFoundException(adId));
+
         CommentEntity comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NoCommentsException("У этого объявления пока нет комментариев."));
-        if (!comment.getAuthorId().equals(user.getId())) {
-            throw new NoneOfYourBusinessException("Пользователь не является автором комментария.");
-        }
-        if (!commentRepository.existsById(commentId)) {
-            createOrUpdateCommentDTOMapper.createEntityFromDto(updateComment, user, ad);
-        }
+                .orElseThrow(NoCommentsException::new);
+
         if (!comment.getAd().getId().equals(adId)) {
-            throw new IllegalArgumentException("Комментарий не принадлежит объявлению с id " + adId);
+            throw new CommentDoesNotBelongToAdException(commentId, adId);
         }
+
+        if (!isOwner(commentId, email) && !isAdmin(email)) {
+            throw new NoneOfYourBusinessException("Вы не можете отредактировать этот комментарий");
+        }
+
         createOrUpdateCommentDTOMapper.updateEntityFromDto(updateComment, comment);
         return commentDTOMapper.toDto(comment);
     }

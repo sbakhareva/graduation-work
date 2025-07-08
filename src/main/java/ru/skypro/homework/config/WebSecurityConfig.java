@@ -31,17 +31,14 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(
-                        authorization ->
-                                authorization
-                                        .requestMatchers(AUTH_WHITELIST).permitAll()
-                                        .requestMatchers("/ads/**", "/users/**").authenticated())
+                .authorizeHttpRequests(authorization -> authorization
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .requestMatchers("/ads/**", "/users/**").authenticated()
+                        .anyRequest().authenticated())
                 .httpBasic((Customizer.withDefaults()))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .invalidSessionUrl("/login?session=invalid")
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")

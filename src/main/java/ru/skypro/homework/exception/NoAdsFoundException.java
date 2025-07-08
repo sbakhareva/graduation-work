@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class NoAdsFoundException extends RuntimeException {
-    public NoAdsFoundException(String message) {
-        super(message);
+    public NoAdsFoundException(Integer id) {
+        super("Не найдено объявлений с id " + id);
     }
 }
 

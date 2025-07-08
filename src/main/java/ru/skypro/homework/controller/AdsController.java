@@ -51,16 +51,20 @@ public class AdsController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удаление объявления", tags = {"Объявления"})
-    public ResponseEntity<?> deleteAd(@PathVariable("id") Integer id) {
-        adsService.deleteAd(id);
+    public ResponseEntity<?> deleteAd(@PathVariable("id") Integer id,
+                                      Authentication authentication) {
+        String email = authentication.getName();
+        adsService.deleteAd(id, email);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
     @Operation(summary = "Обновление информации об объявлении", tags = {"Объявления"})
     public Ad updateAds(@PathVariable(value = "id", required = true) Integer id,
-                        @RequestBody CreateOrUpdateAd ad) {
-        return adsService.updateAd(id, ad);
+                        @RequestBody CreateOrUpdateAd ad,
+                        Authentication authentication) {
+        String email = authentication.getName();
+        return adsService.updateAd(id, ad, email);
     }
 
     @GetMapping("/me")
@@ -73,8 +77,10 @@ public class AdsController {
     @PatchMapping("/{id}/image")
     @Operation(summary = "Обновление картинки объявления", tags = {"Объявления"})
     public String updateImage(@PathVariable("id") Integer id,
-                              @RequestParam MultipartFile image) {
-        return adsService.updateImage(id, image);
+                              @RequestParam MultipartFile image,
+                              Authentication authentication) {
+        String email = authentication.getName();
+        return adsService.updateImage(id, image, email);
     }
 
     @GetMapping("/{id}/comments")
@@ -95,8 +101,10 @@ public class AdsController {
     @DeleteMapping("/{adId}/comments/{commentId}")
     @Operation(summary = "Удаление комментария", tags = {"Комментарии"})
     public ResponseEntity<?> deleteComment(@PathVariable(value = "adId", required = true) Integer adId,
-                                           @PathVariable(value = "commentId", required = true) Integer commentId) {
-        commentsService.deleteComment(adId, commentId);
+                                           @PathVariable(value = "commentId", required = true) Integer commentId,
+                                           Authentication authentication) {
+        String email = authentication.getName();
+        commentsService.deleteComment(adId, commentId, email);
         return ResponseEntity.noContent().build();
     }
 

@@ -14,7 +14,6 @@ public class RegisterDTOMapper {
                 .firstName(register.getFirstName())
                 .lastName(register.getLastName())
                 .phone(register.getPhone())
-                .image(null)
                 .password(passwordEncoder.encode(register.getPassword()))
                 .role(register.getRole())
                 .enabled(true)

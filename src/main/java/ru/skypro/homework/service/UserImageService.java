@@ -1,5 +1,7 @@
 package ru.skypro.homework.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,8 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Service
 @Transactional
 public class UserImageService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserImageService.class);
 
     @Value("${users.image.dir.path}")
     private String directory;
@@ -54,13 +58,13 @@ public class UserImageService {
 
     public void uploadUserImage(Integer userId, MultipartFile image) throws IOException {
         if (!ALLOWED_TYPES.contains(image.getContentType())) {
-            throw new InvalidFileTypeException("Неверный тип файла");
+            throw new InvalidFileTypeException();
         }
         if (image.getSize() > MAX_FILE_SIZE) {
-            throw new FileSizeExceededException("Слишком большой размер файла");
+            throw new FileSizeExceededException();
         }
         Optional<UserEntity> user = Optional.of(userRepository.findById(userId)
-                .orElseThrow(() -> new NoUsersFoundException("По id " + userId + "ничего не найдено.")));
+                .orElseThrow(() -> new NoUsersFoundByIdException(userId)));
 
         Path filePath = Path.of(directory, userId + "."
                 + getExtension(Objects.requireNonNull(image.getOriginalFilename())));
@@ -115,6 +119,18 @@ public class UserImageService {
 
             ImageIO.write(preview, getExtension(filePath.getFileName().toString()), baos);
             return baos.toByteArray();
+        }
+    }
+
+    public void deleteUserImageFile(Integer userId) {
+        UserImage userImage = userImageRepository.findByUserId(userId)
+                .orElseThrow(() -> new NoImagesFoundException("Фото пользователя " + userId + " не найдено"));
+
+        Path filePath = Path.of(userImage.getFilePath());
+        try {
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            logger.error("Ошибка при удалении файла изображения: {}", filePath);
         }
     }
 }

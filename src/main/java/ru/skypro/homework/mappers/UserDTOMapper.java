@@ -1,5 +1,6 @@
 package ru.skypro.homework.mappers;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.User;
 import ru.skypro.homework.model.UserEntity;
@@ -11,6 +12,7 @@ import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
  * Маппер UserEntity <-> User
  */
 @Component
+@Transactional
 public class UserDTOMapper {
 
     public UserEntity fromDto(User user, UserImage userImage) {
@@ -23,7 +25,7 @@ public class UserDTOMapper {
                 .lastName(user.getLastName())
                 .phone(user.getPhone())
                 .role(user.getRole())
-                .image(userImage) // та же ситуация, что и в AdDTOMapper
+                .image(userImage)
                 .build();
     }
 
@@ -31,6 +33,7 @@ public class UserDTOMapper {
         if (userEntity == null) {
             return null;
         }
+
         return new User(
                 userEntity.getId(),
                 userEntity.getEmail(),
@@ -38,8 +41,7 @@ public class UserDTOMapper {
                 userEntity.getLastName(),
                 userEntity.getPhone(),
                 userEntity.getRole(),
-                generateImageUrl(userEntity)
-        );
+                generateImageUrl(userEntity));
     }
 }
 
