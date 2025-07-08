@@ -11,9 +11,6 @@ import ru.skypro.homework.model.UserEntity;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdsOnlineUserDetailsService;
 import ru.skypro.homework.service.AuthService;
-import ru.skypro.homework.service.UserImageService;
-
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -37,7 +34,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean login(String username, String password) {
         if (!userRepository.existsByEmail(username)) {
-            logger.error("Пользователь с именем пользователя {} не найден", username);
             return false;
         }
 

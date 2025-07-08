@@ -18,10 +18,8 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
@@ -113,5 +111,22 @@ public class AdImageService {
         } catch (IOException e) {
             logger.error("Ошибка при удалении файла изображения: {}", filePath);
         }
+    }
+
+    public List<String> getImageAsBase64Chunks(Integer adId) {
+        AdImage image = adImageRepository.findByAdId(adId)
+                .orElseThrow(() -> new NoImagesFoundException("Картинки для объявления " + adId + " не найдены"));
+
+        byte[] previewBytes = image.getPreview();
+
+        String base64String = Base64.getEncoder().encodeToString(previewBytes);
+
+        int chunkSize = 76;
+        List<String> chunks = new ArrayList<>();
+        for (int i = 0; i < base64String.length(); i += chunkSize) {
+            int end = Math.min(base64String.length(), i + chunkSize);
+            chunks.add(base64String.substring(i, end));
+        }
+        return chunks;
     }
 }

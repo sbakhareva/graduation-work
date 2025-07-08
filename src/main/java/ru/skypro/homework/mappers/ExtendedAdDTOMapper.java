@@ -22,7 +22,7 @@ public class ExtendedAdDTOMapper {
                 user.getLastName(),
                 ad.getDescription(),
                 user.getEmail(),
-                generateImageUrl(user),
+                generateImageUrl(ad),
                 user.getPhone(),
                 ad.getPrice(),
                 ad.getTitle()
