@@ -44,7 +44,7 @@ public class UserImageService {
     }
 
     public void setDefaultUserImage(UserEntity user) throws IOException {
-        File defaultImageFile = new File("src/main/resources/static/images/default-user-image.jpeg");
+        File defaultImageFile = new File("src/main/resources/static/images/default-user-image.png");
 
         UserImage defaultImage = new UserImage();
         defaultImage.setUser(user);
