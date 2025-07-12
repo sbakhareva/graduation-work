@@ -4,9 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class NoUsersFoundException extends RuntimeException {
+public class NoCommentsException extends RuntimeException {
 
-    public NoUsersFoundException(String message) {
-        super(message);
+    public NoCommentsException() {
+        super("У этого объявления пока нет комментариев.");
     }
 }

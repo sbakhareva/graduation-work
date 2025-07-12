@@ -3,7 +3,6 @@ package ru.skypro.homework.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
-import ru.skypro.homework.dto.Login;
 import ru.skypro.homework.dto.Role;
 
 import java.util.List;
@@ -33,4 +32,6 @@ public class UserEntity {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
     private List<AdEntity> ads;
+
+    private boolean enabled;
 }

@@ -1,13 +1,12 @@
 package ru.skypro.homework.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.exception.FileSizeExceededException;
-import ru.skypro.homework.exception.InvalidFileTypeException;
-import ru.skypro.homework.exception.NoAdsFoundException;
-import ru.skypro.homework.exception.NoImagesFoundException;
+import ru.skypro.homework.exception.*;
 import ru.skypro.homework.model.AdEntity;
 import ru.skypro.homework.model.AdImage;
 import ru.skypro.homework.repository.AdImageRepository;
@@ -19,10 +18,8 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
@@ -30,9 +27,11 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Transactional
 public class AdImageService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AdImageService.class);
+
     @Value("${adEntities.image.dir.path}")
     private String directory;
-    private static final List<String> ALLOWED_TYPES =  Arrays.asList("image/jpeg", "image/png", "image/jpg");
+    private static final List<String> ALLOWED_TYPES = Arrays.asList("image/jpeg", "image/png", "image/jpg");
     private final long MAX_FILE_SIZE = 1024 * 1024 * 5;
     private final AdImageRepository adImageRepository;
     private final AdRepository adRepository;
@@ -44,13 +43,13 @@ public class AdImageService {
 
     public void uploadAdImage(Integer adId, MultipartFile image) throws IOException {
         if (!ALLOWED_TYPES.contains(image.getContentType())) {
-            throw new InvalidFileTypeException("Неверный тип файла");
+            throw new InvalidFileTypeException();
         }
         if (image.getSize() > MAX_FILE_SIZE) {
-            throw new FileSizeExceededException("Слишком большой размер файла");
+            throw new FileSizeExceededException();
         }
         Optional<AdEntity> ad = Optional.of(adRepository.findById(adId)
-                .orElseThrow(() -> new NoAdsFoundException("По id " + adId + "ничего не найдено.")));
+                .orElseThrow(() -> new NoAdsFoundException(adId)));
 
         Path filePath = Path.of(directory, adId + "."
                 + getExtension(Objects.requireNonNull(image.getOriginalFilename())));
@@ -81,7 +80,7 @@ public class AdImageService {
 
     public AdImage getAdImage(Integer adId) {
         return adImageRepository.findByAdId(adId)
-                .orElseThrow(() -> new NoImagesFoundException("Фотографии к объявлению по id " + adId + " не найдены."));
+                .orElse(new AdImage());
 
     }
 
@@ -100,5 +99,34 @@ public class AdImageService {
             ImageIO.write(preview, getExtension(filePath.getFileName().toString()), baos);
             return baos.toByteArray();
         }
+    }
+
+    public void deleteAdImageFile(Integer adId) {
+        AdImage adImage = adImageRepository.findByAdId(adId)
+                .orElseThrow(() -> new NoImagesFoundException("Картинки для объявления " + adId + " не найдены"));
+
+        Path filePath = Path.of(adImage.getFilePath());
+        try {
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            logger.error("Ошибка при удалении файла изображения: {}", filePath);
+        }
+    }
+
+    public List<String> getImageAsBase64Chunks(Integer adId) {
+        AdImage image = adImageRepository.findByAdId(adId)
+                .orElseThrow(() -> new NoImagesFoundException("Картинки для объявления " + adId + " не найдены"));
+
+        byte[] previewBytes = image.getPreview();
+
+        String base64String = Base64.getEncoder().encodeToString(previewBytes);
+
+        int chunkSize = 76;
+        List<String> chunks = new ArrayList<>();
+        for (int i = 0; i < base64String.length(); i += chunkSize) {
+            int end = Math.min(base64String.length(), i + chunkSize);
+            chunks.add(base64String.substring(i, end));
+        }
+        return chunks;
     }
 }

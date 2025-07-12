@@ -5,11 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -30,36 +28,23 @@ public class WebSecurityConfig {
     };
 
     @Bean
-    public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
-        UserDetails user =
-                User.builder()
-                        .username("user@gmail.com")
-                        .password("password")
-                        .passwordEncoder(passwordEncoder::encode)
-                        .roles("USER")
-                        .build();
-
-        // TODO: разделение действий в сервисе по ролям, но нужна логика работы со всяким
-        UserDetails admin = User.builder()
-                .username("admin@gmail.com")
-                .password("adminpass")
-                .passwordEncoder(passwordEncoder::encode)
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(user);
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(
-                        authorization ->
-                                authorization
-                                        .requestMatchers(AUTH_WHITELIST).permitAll()
-                                        .requestMatchers("/ads/**", "/users/**").authenticated())
-                .httpBasic((Customizer.withDefaults()));
+                .authorizeHttpRequests(authorization -> authorization
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .requestMatchers("/ads/**", "/users/**").authenticated()
+                        .anyRequest().authenticated())
+                .httpBasic((Customizer.withDefaults()))
+                .sessionManagement(session -> session
+                        .sessionFixation().newSession()
+                        .invalidSessionUrl("/login?session=invalid")
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .deleteCookies("JSESSIONID")
+                );
 
         return http.build();
     }

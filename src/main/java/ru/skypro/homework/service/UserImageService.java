@@ -1,5 +1,7 @@
 package ru.skypro.homework.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,8 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Transactional
 public class UserImageService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserImageService.class);
+
     @Value("${users.image.dir.path}")
     private String directory;
     private static final List<String> ALLOWED_TYPES = Arrays.asList("image/jpeg", "image/png", "image/jpg");
@@ -39,15 +43,28 @@ public class UserImageService {
         this.userRepository = userRepository;
     }
 
+    public void setDefaultUserImage(UserEntity user) throws IOException {
+        File defaultImageFile = new File("src/main/resources/static/images/default-user-image.jpeg");
+
+        UserImage defaultImage = new UserImage();
+        defaultImage.setUser(user);
+        defaultImage.setFilePath(defaultImageFile.getPath());
+        defaultImage.setFileSize(defaultImageFile.length());
+        defaultImage.setMediaType("image/jpeg");
+        defaultImage.setPreview(generateImagePreview(Path.of(defaultImage.getFilePath())));
+
+        userImageRepository.save(defaultImage);
+    }
+
     public void uploadUserImage(Integer userId, MultipartFile image) throws IOException {
         if (!ALLOWED_TYPES.contains(image.getContentType())) {
-            throw new InvalidFileTypeException("Неверный тип файла");
+            throw new InvalidFileTypeException();
         }
         if (image.getSize() > MAX_FILE_SIZE) {
-            throw new FileSizeExceededException("Слишком большой размер файла");
+            throw new FileSizeExceededException();
         }
         Optional<UserEntity> user = Optional.of(userRepository.findById(userId)
-                .orElseThrow(() -> new NoUsersFoundException("По id " + userId + "ничего не найдено.")));
+                .orElseThrow(() -> new NoUsersFoundByIdException(userId)));
 
         Path filePath = Path.of(directory, userId + "."
                 + getExtension(Objects.requireNonNull(image.getOriginalFilename())));
@@ -78,7 +95,7 @@ public class UserImageService {
 
     public UserImage getUserImage(Integer userId) {
         return userImageRepository.findByUserId(userId)
-                .orElseThrow(() -> new NoImagesFoundException("Фото пользователя по id " + userId + " не найдено."));
+                .orElse(new UserImage());
     }
 
     private byte[] generateImagePreview(Path filePath) throws IOException {
@@ -86,15 +103,34 @@ public class UserImageService {
              BufferedInputStream bis = new BufferedInputStream(is, 1024);
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             BufferedImage image = ImageIO.read(bis);
+            if (image == null) {
+                throw new IOException("Не удалось прочитать изображение из файла: " + filePath);
+            }
 
-            int height = image.getHeight() / (image.getWidth() / 100);
-            BufferedImage preview = new BufferedImage(100, height, image.getType());
+            int previewWidth = 100;
+            int previewHeight = (int) ((double) image.getHeight() / image.getWidth() * previewWidth);
+            BufferedImage preview = new BufferedImage(100, previewHeight, image.getType());
             Graphics2D graphics = preview.createGraphics();
-            graphics.drawImage(image, 0, 0, 100, height, null);
-            graphics.dispose();
+            try {
+                graphics.drawImage(image, 0, 0, 100, previewHeight, null);
+            } finally {
+                graphics.dispose();
+            }
 
             ImageIO.write(preview, getExtension(filePath.getFileName().toString()), baos);
             return baos.toByteArray();
+        }
+    }
+
+    public void deleteUserImageFile(Integer userId) {
+        UserImage userImage = userImageRepository.findByUserId(userId)
+                .orElseThrow(() -> new NoImagesFoundException("Фото пользователя " + userId + " не найдено"));
+
+        Path filePath = Path.of(userImage.getFilePath());
+        try {
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            logger.error("Ошибка при удалении файла изображения: {}", filePath);
         }
     }
 }

@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface AdImageRepository extends JpaRepository<AdImage, Long> {
     Optional<AdImage> findByAdId(Integer id);
+
+    void deleteByAdId(Integer id);
 }

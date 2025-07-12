@@ -7,8 +7,8 @@ import lombok.*;
 @NoArgsConstructor
 public class ExtendedAd {
     private Integer pk;
-    private String firstName;
-    private String lastName;
+    private String authorFirstName;
+    private String authorLastName;
     private String description;
     private String email;
     private String image;

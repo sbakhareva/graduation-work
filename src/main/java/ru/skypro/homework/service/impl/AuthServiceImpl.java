@@ -1,47 +1,57 @@
 package ru.skypro.homework.service.impl;
 
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.skypro.homework.dto.Register;
+import ru.skypro.homework.mappers.RegisterDTOMapper;
+import ru.skypro.homework.model.UserEntity;
+import ru.skypro.homework.repository.UserRepository;
+import ru.skypro.homework.service.AdsOnlineUserDetailsService;
 import ru.skypro.homework.service.AuthService;
 
 @Service
+@Transactional
 public class AuthServiceImpl implements AuthService {
 
-    private final UserDetailsManager manager;
-    private final PasswordEncoder encoder;
+    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
-    public AuthServiceImpl(UserDetailsManager manager,
-                           PasswordEncoder passwordEncoder) {
-        this.manager = manager;
+    private final AdsOnlineUserDetailsService adsOnlineUserDetailsService;
+    private final PasswordEncoder encoder;
+    private final RegisterDTOMapper registerDTOMapper = new RegisterDTOMapper();
+    private final UserRepository userRepository;
+
+    public AuthServiceImpl(AdsOnlineUserDetailsService adsOnlineUserDetailsService,
+                           PasswordEncoder passwordEncoder,
+                           UserRepository userRepository) {
+        this.adsOnlineUserDetailsService = adsOnlineUserDetailsService;
         this.encoder = passwordEncoder;
+        this.userRepository = userRepository;
     }
 
     @Override
-    public boolean login(String userName, String password) {
-        if (!manager.userExists(userName)) {
+    public boolean login(String username, String password) {
+        if (!userRepository.existsByEmail(username)) {
             return false;
         }
-        UserDetails userDetails = manager.loadUserByUsername(userName);
-        return encoder.matches(password, userDetails.getPassword());
+
+        UserEntity user = userRepository.findByEmail(username).get();
+        return encoder.matches(password, user.getPassword());
     }
 
     @Override
     public boolean register(Register register) {
-        if (manager.userExists(register.getUsername())) {
+        if (userRepository.existsByEmail(register.getUsername())) {
+            logger.info("Пользователь с именем пользователя {} уже существует", register.getUsername());
             return false;
         }
-        manager.createUser(
-                User.builder()
-                        .passwordEncoder(this.encoder::encode)
-                        .password(register.getPassword())
-                        .username(register.getUsername())
-                        .roles(register.getRole().name())
-                        .build());
+
+        UserEntity user = registerDTOMapper.fromDTO(register, encoder);
+
+        userRepository.save(user);
+        logger.info("Пользователь {} успешно добавлен", user.getEmail());
         return true;
     }
-
 }
