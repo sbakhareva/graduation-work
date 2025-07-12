@@ -60,6 +60,8 @@ public class UserImageService {
         Optional<UserEntity> user = Optional.of(userRepository.findById(userId)
                 .orElseThrow(() -> new NoUsersFoundByIdException(userId)));
 
+        userImageRepository.findByUserId(userId).ifPresent(userImageRepository::delete);
+
         Path filePath = Path.of(directory, userId + "."
                 + getExtension(Objects.requireNonNull(image.getOriginalFilename())));
         Files.createDirectories(filePath.getParent());
@@ -75,12 +77,12 @@ public class UserImageService {
 
         UserImage userImage = getUserImage(userId);
         userImage.setUser(user.get());
-        userImage.setFilePath(filePath.toString());
         userImage.setFileSize(image.getSize());
         userImage.setMediaType(image.getContentType());
         userImage.setPreview(generateImagePreview(filePath));
 
         userImageRepository.save(userImage);
+        userImage.setFilePath("/user-images/" + userImage.getId());
     }
 
     private String getExtension(String fileName) {

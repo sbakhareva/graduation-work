@@ -71,12 +71,12 @@ public class AdImageService {
 
         AdImage adImage = getAdImage(adId);
         adImage.setAd(ad.get());
-        adImage.setFilePath(filePath.toString());
         adImage.setFileSize(image.getSize());
         adImage.setMediaType(image.getContentType());
         adImage.setPreview(generateImagePreview(filePath));
 
         adImageRepository.save(adImage);
+        adImage.setFilePath("/ads-images/" + adImage.getId());
     }
 
     private String getExtension(String fileName) {

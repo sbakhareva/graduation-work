@@ -3,7 +3,6 @@ package ru.skypro.homework.service;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
@@ -20,8 +19,6 @@ import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 
 import java.io.IOException;
-
-import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
 
 @Service
 @Transactional
@@ -149,6 +146,6 @@ public class AdsService {
         AdImage newImage = adImageRepository.findByAdId(id)
                 .orElseThrow(() -> new NoImagesFoundException("Не найдено изображений для объявления с id " + id));
         ad.setImage(newImage);
-        return generateImageUrl(ad);
+        return newImage.getFilePath();
     }
 }
