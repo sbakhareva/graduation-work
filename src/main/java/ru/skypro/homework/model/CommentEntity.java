@@ -6,6 +6,8 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "comments")
 @Data
@@ -21,12 +23,17 @@ public class CommentEntity {
 
     private Integer authorId; // id автора комментария
     private String authorImage;
-    private String authorName;
-    private Integer createdAt;
+    private String authorFirstName;
+    private long createdAt;
     private String text;
 
     @ManyToOne
     @JoinColumn(name = "ad_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private AdEntity ad;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = Instant.now().toEpochMilli();
+    }
 }

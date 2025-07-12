@@ -41,3 +41,9 @@ ADD CONSTRAINT chk_description_max_length CHECK (char_length(description) <= 64)
 
 ALTER TABLE ads
 ADD CONSTRAINT chk_price CHECK (price >= 0 AND price <= 10000000);
+
+-- changeset sbakhareva:3
+ALTER TABLE comments RENAME COLUMN author_name TO author_first_name;
+
+-- changeset sbakhareva:4
+ALTER TABLE comments ALTER COLUMN created_at TYPE BIGINT;

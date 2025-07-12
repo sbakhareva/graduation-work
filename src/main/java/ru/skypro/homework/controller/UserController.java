@@ -2,7 +2,11 @@ package ru.skypro.homework.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -10,19 +14,21 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
+import ru.skypro.homework.model.UserImage;
+import ru.skypro.homework.service.UserImageService;
 import ru.skypro.homework.service.UserService;
 
+import java.security.PrivateKey;
+
 @RestController
+@AllArgsConstructor
 @CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/users")
 @Tag(name = "Пользователи")
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private final UserImageService userImageService;
 
     @PostMapping("/set_password")
     @Operation(summary = "Обновление пароля")
@@ -63,4 +69,16 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
+    @GetMapping(value = "/images/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
+    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer id) {
+        UserImage image = userImageService.getImage(id);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.valueOf(image.getMediaType()));
+        headers.setContentLength(image.getFileSize());
+
+        return new ResponseEntity<>(image.getPreview(), headers, HttpStatus.OK);
+    }
+
 }

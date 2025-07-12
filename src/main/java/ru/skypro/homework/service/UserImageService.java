@@ -3,6 +3,8 @@ package ru.skypro.homework.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,17 +45,9 @@ public class UserImageService {
         this.userRepository = userRepository;
     }
 
-    public void setDefaultUserImage(UserEntity user) throws IOException {
-        File defaultImageFile = new File("src/main/resources/static/images/default-user-image.png");
-
-        UserImage defaultImage = new UserImage();
-        defaultImage.setUser(user);
-        defaultImage.setFilePath(defaultImageFile.getPath());
-        defaultImage.setFileSize(defaultImageFile.length());
-        defaultImage.setMediaType("image/jpeg");
-        defaultImage.setPreview(generateImagePreview(Path.of(defaultImage.getFilePath())));
-
-        userImageRepository.save(defaultImage);
+    public UserImage getImage(Integer id) {
+        return userImageRepository.findById(id)
+                .orElseThrow(() -> new NoImagesFoundException("Не найдены фото с id " + id));
     }
 
     public void uploadUserImage(Integer userId, MultipartFile image) throws IOException {
@@ -82,7 +76,7 @@ public class UserImageService {
         UserImage userImage = getUserImage(userId);
         userImage.setUser(user.get());
         userImage.setFilePath(filePath.toString());
-        userImage.setFileSize(userImage.getFileSize());
+        userImage.setFileSize(image.getSize());
         userImage.setMediaType(image.getContentType());
         userImage.setPreview(generateImagePreview(filePath));
 

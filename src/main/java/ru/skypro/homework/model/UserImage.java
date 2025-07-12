@@ -20,6 +20,7 @@ public class UserImage {
     private long fileSize;
     private String mediaType;
     @Lob
+    @Basic(fetch = FetchType.LAZY)
     @JsonIgnore
     private byte[] preview;
 

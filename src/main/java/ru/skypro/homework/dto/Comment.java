@@ -9,8 +9,8 @@ public class Comment {
 
     private Integer author; // id автора комментария
     private String authorImage;
-    private String authorName;
-    private Integer createdAt;
+    private String authorFirstName;
+    private long createdAt;
     private Integer pk; // id комментария
     private String text;
 }

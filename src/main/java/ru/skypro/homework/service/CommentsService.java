@@ -25,7 +25,7 @@ public class CommentsService {
 
     private final CommentDTOMapper commentDTOMapper = new CommentDTOMapper();
     private final CommentsDTOMapper commentsDTOMapper = new CommentsDTOMapper(commentDTOMapper);
-    private final CreateOrUpdateCommentDTOMapper createOrUpdateCommentDTOMapper = new CreateOrUpdateCommentDTOMapper(commentDTOMapper);
+    private final CreateOrUpdateCommentDTOMapper createOrUpdateCommentDTOMapper = new CreateOrUpdateCommentDTOMapper();
 
     private final AdRepository adRepository;
     private final CommentRepository commentRepository;
@@ -72,7 +72,9 @@ public class CommentsService {
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
         AdEntity ad = adRepository.findById(id)
                 .orElseThrow(() -> new NoAdsFoundException(id));
-        return createOrUpdateCommentDTOMapper.createEntityFromDto(createOrUpdateComment, user, ad);
+        CommentEntity comment = createOrUpdateCommentDTOMapper.createEntityFromDto(createOrUpdateComment, user, ad);
+        commentRepository.save(comment);
+        return commentDTOMapper.toDto(comment);
     }
 
     public void deleteComment(Integer adId,
@@ -96,9 +98,6 @@ public class CommentsService {
                                  Integer commentId,
                                  CreateOrUpdateComment updateComment,
                                  String email) {
-        AdEntity ad = adRepository.findById(adId)
-                .orElseThrow(() -> new NoAdsFoundException(adId));
-
         CommentEntity comment = commentRepository.findById(commentId)
                 .orElseThrow(NoCommentsException::new);
 

@@ -1,29 +1,31 @@
 package ru.skypro.homework.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
 
 import org.springframework.http.MediaType;
+import ru.skypro.homework.model.AdImage;
+import ru.skypro.homework.service.AdImageService;
 import ru.skypro.homework.service.AdsService;
 import ru.skypro.homework.service.CommentsService;
 
 @RestController
+@AllArgsConstructor
 @CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/ads")
 public class AdsController {
 
     private final AdsService adsService;
     private final CommentsService commentsService;
-
-    public AdsController(AdsService adsService,
-                         CommentsService commentsService) {
-        this.adsService = adsService;
-        this.commentsService = commentsService;
-    }
+    private final AdImageService adImageService;
 
     @GetMapping
     @Operation(summary = "Получение всех объявлений", tags = {"Объявления"})
@@ -110,11 +112,23 @@ public class AdsController {
 
     @PatchMapping("/{adId}/comments/{commentId}")
     @Operation(summary = "Обновление комментария", tags = {"Комментарии"})
-    public Comment updateComment(@PathVariable(value = "adId", required = true) Integer adId,
-                                 @PathVariable(value = "commentId", required = true) Integer commentId,
+    public Comment updateComment(@PathVariable(value = "adId") Integer adId,
+                                 @PathVariable(value = "commentId") Integer commentId,
                                  @RequestBody CreateOrUpdateComment comment,
                                  Authentication authentication) {
         String email = authentication.getName();
         return commentsService.updateComment(adId, commentId, comment, email);
+    }
+
+    @Transactional
+    @GetMapping(value = "/images/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
+    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer id) {
+        AdImage image = adImageService.getImage(id);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.valueOf(image.getMediaType()));
+        headers.setContentLength(image.getFileSize());
+
+        return new ResponseEntity<>(image.getPreview(), headers, HttpStatus.OK);
     }
 }

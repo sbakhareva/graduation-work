@@ -41,6 +41,11 @@ public class AdImageService {
         this.adRepository = adRepository;
     }
 
+    public AdImage getImage(Integer id) {
+        return adImageRepository.findById(id)
+                .orElseThrow(() -> new NoImagesFoundException("Не найдено картинок с id " + id));
+    }
+
     public void uploadAdImage(Integer adId, MultipartFile image) throws IOException {
         if (!ALLOWED_TYPES.contains(image.getContentType())) {
             throw new InvalidFileTypeException();
@@ -67,7 +72,7 @@ public class AdImageService {
         AdImage adImage = getAdImage(adId);
         adImage.setAd(ad.get());
         adImage.setFilePath(filePath.toString());
-        adImage.setFileSize(adImage.getFileSize());
+        adImage.setFileSize(image.getSize());
         adImage.setMediaType(image.getContentType());
         adImage.setPreview(generateImagePreview(filePath));
 
@@ -111,22 +116,5 @@ public class AdImageService {
         } catch (IOException e) {
             logger.error("Ошибка при удалении файла изображения: {}", filePath);
         }
-    }
-
-    public List<String> getImageAsBase64Chunks(Integer adId) {
-        AdImage image = adImageRepository.findByAdId(adId)
-                .orElseThrow(() -> new NoImagesFoundException("Картинки для объявления " + adId + " не найдены"));
-
-        byte[] previewBytes = image.getPreview();
-
-        String base64String = Base64.getEncoder().encodeToString(previewBytes);
-
-        int chunkSize = 76;
-        List<String> chunks = new ArrayList<>();
-        for (int i = 0; i < base64String.length(); i += chunkSize) {
-            int end = Math.min(base64String.length(), i + chunkSize);
-            chunks.add(base64String.substring(i, end));
-        }
-        return chunks;
     }
 }

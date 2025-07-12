@@ -14,4 +14,6 @@ public interface UserImageRepository extends JpaRepository<UserImage, Long> {
     void deleteByUserId(Integer id);
 
     boolean existsByUserId(Integer id);
+
+    Optional<UserImage> findById(Integer id);
 }
