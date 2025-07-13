@@ -2,7 +2,6 @@ package ru.skypro.homework.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,8 +16,6 @@ import ru.skypro.homework.dto.User;
 import ru.skypro.homework.model.UserImage;
 import ru.skypro.homework.service.UserImageService;
 import ru.skypro.homework.service.UserService;
-
-import java.security.PrivateKey;
 
 @RestController
 @AllArgsConstructor
@@ -35,27 +32,40 @@ public class UserController {
     public ResponseEntity<?> setPassword(@RequestBody NewPassword newPassword,
                                          Authentication authentication) {
         String email = authentication.getName();
-        System.out.println(email);
-        if (userService.updatePassword(newPassword, email)) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        try {
+            if (userService.updatePassword(newPassword, email)) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @GetMapping("/me")
     @Operation(summary = "Получение информации об авторизованном пользователе")
-    public User getUser(Authentication authentication) {
+    public ResponseEntity<User> getUser(Authentication authentication) {
         String email = authentication.getName();
-        return userService.getUser(email);
+        try {
+            User user = userService.getUser(email);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @PatchMapping("/me")
     @Operation(summary = "Обновление информации об авторизованном пользователе")
-    public UpdateUser updateUser(@RequestBody UpdateUser updateUser,
+    public ResponseEntity<UpdateUser> updateUser(@RequestBody UpdateUser updateUser,
                                  Authentication authentication) {
         String email = authentication.getName();
-        return userService.updateUser(updateUser, email);
+        try {
+            UpdateUser updatedUser = userService.updateUser(updateUser, email);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @PatchMapping("/me/image")
@@ -63,22 +73,34 @@ public class UserController {
     public ResponseEntity<?> updateUserImage(@RequestParam MultipartFile image,
                                              Authentication authentication) {
         String email = authentication.getName();
-        if (userService.updateUserImage(image, email)) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        try {
+            if (userService.updateUserImage(image, email)) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @GetMapping(value = "/images/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
-    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer id) {
-        UserImage image = userImageService.getImage(id);
+    @Operation(summary = "Получение изображения пользователя", tags = {"Изображения"})
+    public ResponseEntity<byte[]> getUserImage(@PathVariable("id") Integer id) {
+        try {
+            UserImage image = userImageService.getImage(id);
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.valueOf(image.getMediaType()));
+            headers.setContentLength(image.getFileSize());
+            headers.setCacheControl("max-age=31536000"); // Кэширование на 1 год
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.valueOf(image.getMediaType()));
-        headers.setContentLength(image.getFileSize());
-
-        return new ResponseEntity<>(image.getPreview(), headers, HttpStatus.OK);
+            // Пытаемся получить полное изображение с диска
+            byte[] imageBytes = userImageService.getImageBytes(id);
+            
+            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
-
 }

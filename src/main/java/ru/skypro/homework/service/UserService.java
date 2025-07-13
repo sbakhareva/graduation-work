@@ -46,12 +46,13 @@ public class UserService {
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
         if (!passwordEncoder.matches(newPassword.getCurrentPassword(), userEntity.getPassword())) {
-            logger.warn("Текущий и старый введённые пароли не совпадают.");
+            logger.warn("Текущий и старый введённые пароли не совпадают для пользователя {}", email);
             return false;
         }
 
         userEntity.setPassword(passwordEncoder.encode(newPassword.getNewPassword()));
-        logger.info("Пароль успешно обновлен.");
+        userRepository.save(userEntity);
+        logger.info("Пароль успешно обновлен для пользователя {}", email);
         return true;
     }
 
@@ -74,38 +75,31 @@ public class UserService {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
-        if (userImageRepository.existsByUserId(user.getId())) {
-            userImageService.deleteUserImageFile(user.getId());
-            try {
-                userImageRepository.deleteByUserId(user.getId());
+        try {
+            // Удаляем старое изображение если есть
+            if (userImageRepository.existsByUserId(user.getId())) {
+                userImageService.deleteUserImageFile(user.getId());
                 logger.info("Старое изображение пользователя {} удалено", email);
-            } catch (Exception e) {
-                logger.error("Ошибка при удалении фото пользователя с id {}: {}", user.getId(), e.getMessage(), e);
             }
 
-            try {
-                userImageService.uploadUserImage(user.getId(), newImage);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                UserImage image = userImageRepository.findByUserId(user.getId())
-                        .orElseThrow(() -> new NoImagesFoundException("Не найдено фото для пользователя с id " + user.getId()));
-                user.setImage(image);
-                return true;
-            } catch (Exception e) {
-                logger.error("Произошла ошибка: {}", e.getMessage());
-                return false;
-            }
-        }
-        try {
+            // Загружаем новое изображение
             userImageService.uploadUserImage(user.getId(), newImage);
+            
+            // Получаем новое изображение и связываем с пользователем
+            UserImage image = userImageRepository.findByUserId(user.getId())
+                    .orElseThrow(() -> new NoImagesFoundException("Не найдено фото для пользователя с id " + user.getId()));
+            
+            user.setImage(image);
+            userRepository.save(user);
+            
+            logger.info("Изображение пользователя {} успешно обновлено", email);
+            return true;
         } catch (IOException e) {
-            logger.error("Ошибка при сохранении изображения");
+            logger.error("Ошибка при обновлении изображения пользователя {}: {}", email, e.getMessage());
+            return false;
+        } catch (Exception e) {
+            logger.error("Произошла ошибка при обновлении изображения пользователя {}: {}", email, e.getMessage());
+            return false;
         }
-        UserImage image = userImageRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new NoImagesFoundException("Не найдено фото для пользователя с id " + user.getId()));
-        user.setImage(image);
-        return true;
     }
 }

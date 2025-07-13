@@ -198,7 +198,7 @@ class AdsControllerTest {
                 .andExpect(jsonPath("$.count").value(1))
                 .andExpect(jsonPath("$.results[0].author").value(comment.getAuthor()))
                 .andExpect(jsonPath("$.results[0].authorImage").value(comment.getAuthorImage()))
-                .andExpect(jsonPath("$.results[0].authorName").value(comment.getAuthorName()))
+                .andExpect(jsonPath("$.results[0].authorFirstName").value(comment.getAuthorFirstName()))
                 .andExpect(jsonPath("$.results[0].pk").value(comment.getPk()))
                 .andExpect(jsonPath("$.results[0].text").value(comment.getText()));
     }
@@ -220,7 +220,7 @@ class AdsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.author").value(comment.getAuthor()))
                 .andExpect(jsonPath("$.authorImage").value(comment.getAuthorImage()))
-                .andExpect(jsonPath("$.authorName").value(comment.getAuthorName()))
+                .andExpect(jsonPath("$.authorFirstName").value(comment.getAuthorFirstName()))
                 .andExpect(jsonPath("$.text").value(comment.getText()));
     }
 
@@ -249,7 +249,7 @@ class AdsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.author").value(comment.getAuthor()))
                 .andExpect(jsonPath("$.authorImage").value(comment.getAuthorImage()))
-                .andExpect(jsonPath("$.authorName").value(comment.getAuthorName()))
+                .andExpect(jsonPath("$.authorFirstName").value(comment.getAuthorFirstName()))
                 .andExpect(jsonPath("$.text").value(comment.getText()));
     }
 }

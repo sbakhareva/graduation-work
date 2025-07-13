@@ -1,7 +1,6 @@
 package ru.skypro.homework.mappers;
 
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.User;
 import ru.skypro.homework.model.UserEntity;
@@ -35,6 +34,8 @@ public class UserDTOMapper {
             return null;
         }
 
+        String imageUrl = generateImageUrl(userEntity);
+
         return new User(
                 userEntity.getId(),
                 userEntity.getEmail(),
@@ -42,7 +43,7 @@ public class UserDTOMapper {
                 userEntity.getLastName(),
                 userEntity.getPhone(),
                 userEntity.getRole(),
-                generateImageUrl(userEntity));
+                imageUrl);
     }
 }
 

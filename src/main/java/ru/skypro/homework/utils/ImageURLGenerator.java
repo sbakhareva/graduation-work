@@ -6,19 +6,20 @@ import ru.skypro.homework.model.UserEntity;
 
 @Component
 public class ImageURLGenerator {
+    
     public static String generateImageUrl(AdEntity adEntity) {
         if (adEntity.getId() != null && adEntity.getId() > 0 && adEntity.getImage() != null) {
-            return adEntity.getImage().getFilePath();
+            return "/ads/images/" + adEntity.getImage().getId();
         } else {
-            return "/images/default-ad-image.png";
+            return "/images/default-ad-image.jpeg";
         }
     }
 
     public static String generateImageUrl(UserEntity userEntity) {
         if (userEntity.getId() != null && userEntity.getId() > 0 && userEntity.getImage() != null) {
-            return userEntity.getImage().getFilePath();
+            return "/users/images/" + userEntity.getImage().getId();
         } else {
-            return "/images/default-user-image.png";
+            return "/images/default-user-image.jpeg";
         }
     }
 }

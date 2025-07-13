@@ -23,7 +23,10 @@ public class WebSecurityConfig {
             "/v3/api-docs",
             "/webjars/**",
             "/login",
-            "/register"
+            "/register",
+            "/images/**", // Разрешаем доступ к статическим изображениям
+            "/ads/images/**", // Разрешаем доступ к изображениям объявлений
+            "/users/images/**" // Разрешаем доступ к изображениям пользователей
     };
 
     @Bean

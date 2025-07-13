@@ -61,6 +61,7 @@ public class AdsService {
                     String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
+        
         AdEntity adEntity = AdEntity.builder()
                 .price(createOrUpdateAd.getPrice())
                 .title(createOrUpdateAd.getTitle())
@@ -70,12 +71,17 @@ public class AdsService {
 
         adRepository.save(adEntity);
 
+        // Загружаем изображение если оно передано
         if (image != null && !image.isEmpty()) {
             try {
                 adImageService.uploadAdImage(adEntity.getId(), image);
+                logger.info("Объявление {} создано с изображением", adEntity.getId());
             } catch (IOException e) {
-                System.out.println(("Ошибка при загрузке изображения"));
+                logger.error("Ошибка при загрузке изображения для объявления {}: {}", adEntity.getId(), e.getMessage());
+                // Не прерываем создание объявления, если изображение не загрузилось
             }
+        } else {
+            logger.info("Объявление {} создано без изображения", adEntity.getId());
         }
 
         return adDTOMapper.toDto(adEntity);
@@ -99,7 +105,17 @@ public class AdsService {
             throw new NoneOfYourBusinessException("Вы не можете удалить это объявление");
         }
 
+        // Удаляем изображение если есть
+        if (adToDelete.getImage() != null) {
+            try {
+                adImageService.deleteAdImageFile(id);
+            } catch (Exception e) {
+                logger.error("Ошибка при удалении изображения объявления {}: {}", id, e.getMessage());
+            }
+        }
+
         adRepository.delete(adToDelete);
+        logger.info("Объявление {} удалено", id);
     }
 
     public Ad updateAd(Integer id,
@@ -131,21 +147,25 @@ public class AdsService {
             throw new NoneOfYourBusinessException("Вы не можете обновить картинку этого объявления");
         }
 
-        adImageService.deleteAdImageFile(id);
         try {
-            adImageRepository.deleteByAdId(ad.getId());
-        } catch (Exception e) {
-            logger.error("Ошибка при удалении изображения для объявления с id {}: {}", ad.getId(), e.getMessage(), e);
-        }
-
-        try {
-            adImageService.uploadAdImage(ad.getId(), image);
+            // Удаляем старое изображение
+            adImageService.deleteAdImageFile(id);
+            
+            // Загружаем новое изображение
+            adImageService.uploadAdImage(id, image);
+            
+            // Получаем обновленное изображение
+            AdImage newImage = adImageRepository.findByAdId(id)
+                    .orElseThrow(() -> new NoImagesFoundException("Не найдено изображений для объявления с id " + id));
+            
+            ad.setImage(newImage);
+            adRepository.save(ad);
+            
+            logger.info("Изображение объявления {} обновлено", id);
+            return newImage.getFilePath();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.error("Ошибка при обновлении изображения объявления {}: {}", id, e.getMessage());
+            throw new RuntimeException("Ошибка при обновлении изображения", e);
         }
-        AdImage newImage = adImageRepository.findByAdId(id)
-                .orElseThrow(() -> new NoImagesFoundException("Не найдено изображений для объявления с id " + id));
-        ad.setImage(newImage);
-        return newImage.getFilePath();
     }
 }
