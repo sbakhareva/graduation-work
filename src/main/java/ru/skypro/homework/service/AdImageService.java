@@ -36,11 +36,13 @@ public class AdImageService {
     private final AdImageRepository adImageRepository;
     private final AdRepository adRepository;
 
-    public AdImageService(AdImageRepository adImageRepository, AdRepository adRepository) {
+    public AdImageService(AdImageRepository adImageRepository,
+                          AdRepository adRepository) {
         this.adImageRepository = adImageRepository;
         this.adRepository = adRepository;
     }
 
+    @Transactional(readOnly = true)
     public AdImage getImage(Integer id) {
         return adImageRepository.findById(id)
                 .orElseThrow(() -> new NoImagesFoundException("Не найдено картинок с id " + id));

@@ -26,20 +26,27 @@ public class AdsService {
 
     private static final Logger logger = LoggerFactory.getLogger(AdsService.class);
 
-    private final AdDTOMapper adDTOMapper = new AdDTOMapper();
-    private final AdsDTOMapper adsDTOMapper = new AdsDTOMapper(adDTOMapper);
-    private final ExtendedAdDTOMapper extendedAdDTOMapper = new ExtendedAdDTOMapper();
-    private final CreateOrUpdateAdDTOMapper createOrUpdateAdDTOMapper = new CreateOrUpdateAdDTOMapper();
+    private final AdDTOMapper adDTOMapper;
+    private final AdsDTOMapper adsDTOMapper;
+    private final ExtendedAdDTOMapper extendedAdDTOMapper;
+    private final CreateOrUpdateAdDTOMapper createOrUpdateAdDTOMapper;
 
     private final AdRepository adRepository;
     private final AdImageService adImageService;
     private final UserRepository userRepository;
     private final AdImageRepository adImageRepository;
 
-    public AdsService(AdRepository adRepository,
+    public AdsService(AdDTOMapper adDTOMapper, AdsDTOMapper adsDTOMapper,
+                      ExtendedAdDTOMapper extendedAdDTOMapper,
+                      CreateOrUpdateAdDTOMapper createOrUpdateAdDTOMapper,
+                      AdRepository adRepository,
                       AdImageService adImageService,
                       UserRepository userRepository,
                       AdImageRepository adImageRepository) {
+        this.adDTOMapper = adDTOMapper;
+        this.adsDTOMapper = adsDTOMapper;
+        this.extendedAdDTOMapper = extendedAdDTOMapper;
+        this.createOrUpdateAdDTOMapper = createOrUpdateAdDTOMapper;
         this.adRepository = adRepository;
         this.adImageService = adImageService;
         this.userRepository = userRepository;

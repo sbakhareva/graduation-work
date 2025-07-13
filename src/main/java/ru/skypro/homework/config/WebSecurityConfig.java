@@ -17,6 +17,9 @@ import java.util.List;
 @Configuration
 public class WebSecurityConfig {
 
+    //private final PasswordEncoder passwordEncoder;
+    //private final AdsOnlineUserDetailsService adsOnlineUserDetailsService;
+
     private static final String[] AUTH_WHITELIST = {
             "/swagger-resources/**",
             "/swagger-ui.html",
@@ -25,6 +28,12 @@ public class WebSecurityConfig {
             "/login",
             "/register"
     };
+
+//    public WebSecurityConfig(PasswordEncoder passwordEncoder,
+//                             AdsOnlineUserDetailsService adsOnlineUserDetailsService) {
+//        this.passwordEncoder = passwordEncoder;
+//        this.adsOnlineUserDetailsService = adsOnlineUserDetailsService;
+//    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,6 +47,22 @@ public class WebSecurityConfig {
 
         return http.build();
     }
+
+//    @Bean
+//    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+//        return http
+//                .getSharedObject(AuthenticationManagerBuilder.class)
+//                .authenticationProvider(daoAuthenticationProvider())
+//                .build();
+//    }
+
+//    @Bean
+//    public DaoAuthenticationProvider daoAuthenticationProvider() {
+//        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+//        provider.setUserDetailsService(adsOnlineUserDetailsService);
+//        provider.setPasswordEncoder(passwordEncoder);
+//        return provider;
+//    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

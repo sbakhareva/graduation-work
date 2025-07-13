@@ -1,13 +1,13 @@
 package ru.skypro.homework.mappers;
 
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.User;
 import ru.skypro.homework.model.UserEntity;
 import ru.skypro.homework.model.UserImage;
 
-import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
+import static ru.skypro.homework.utils.ImageURLGenerator.generateUserImageUrl;
 
 /**
  * Маппер UserEntity <-> User
@@ -42,7 +42,11 @@ public class UserDTOMapper {
                 userEntity.getLastName(),
                 userEntity.getPhone(),
                 userEntity.getRole(),
-                generateImageUrl(userEntity));
+                generateUserImageUrl(userEntity.getId(), hasImage(userEntity)));
+    }
+
+    private boolean hasImage(UserEntity userEntity) {
+        return Hibernate.isInitialized(userEntity.getImage()) && userEntity.getImage() != null;
     }
 }
 

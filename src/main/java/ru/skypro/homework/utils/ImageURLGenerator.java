@@ -1,22 +1,20 @@
 package ru.skypro.homework.utils;
 
 import org.springframework.stereotype.Component;
-import ru.skypro.homework.model.AdEntity;
-import ru.skypro.homework.model.UserEntity;
 
 @Component
 public class ImageURLGenerator {
-    public static String generateImageUrl(AdEntity adEntity) {
-        if (adEntity.getId() != null && adEntity.getId() > 0 && adEntity.getImage() != null) {
-            return adEntity.getImage().getFilePath();
+    public static String generateAdImageUrl(Integer adId, boolean hasImage) {
+        if (adId != null && adId > 0 && hasImage) {
+            return String.format("ads-images/%d", adId);
         } else {
             return "/images/default-ad-image.png";
         }
     }
 
-    public static String generateImageUrl(UserEntity userEntity) {
-        if (userEntity.getId() != null && userEntity.getId() > 0 && userEntity.getImage() != null) {
-            return userEntity.getImage().getFilePath();
+    public static String generateUserImageUrl(Integer userId, boolean hasImage) {
+        if (userId != null && userId > 0 && hasImage) {
+            return String.format("user-images/%d", userId);
         } else {
             return "/images/default-user-image.png";
         }

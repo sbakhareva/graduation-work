@@ -3,8 +3,6 @@ package ru.skypro.homework.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,16 +38,19 @@ public class UserImageService {
     private final UserImageRepository userImageRepository;
     private final UserRepository userRepository;
 
-    public UserImageService(UserImageRepository userImageRepository, UserRepository userRepository) {
+    public UserImageService(UserImageRepository userImageRepository,
+                            UserRepository userRepository) {
         this.userImageRepository = userImageRepository;
         this.userRepository = userRepository;
     }
 
-    public UserImage getImage(Integer id) {
-        return userImageRepository.findById(id)
-                .orElseThrow(() -> new NoImagesFoundException("Не найдены фото с id " + id));
+    @Transactional(readOnly = true)
+    public UserImage getImage(Integer userId) {
+        return userImageRepository.findByUserId(userId)
+                .orElseThrow(() -> new NoImagesFoundException("Не найдены фото пользователя с id " + userId));
     }
 
+    @Transactional
     public void uploadUserImage(Integer userId, MultipartFile image) throws IOException {
         if (!ALLOWED_TYPES.contains(image.getContentType())) {
             throw new InvalidFileTypeException();
@@ -79,10 +80,10 @@ public class UserImageService {
         userImage.setUser(user.get());
         userImage.setFileSize(image.getSize());
         userImage.setMediaType(image.getContentType());
-        userImage.setPreview(generateImagePreview(filePath));
 
         userImageRepository.save(userImage);
         userImage.setFilePath("/user-images/" + userImage.getId());
+        userImage.setPreview(generateImagePreview(filePath));
     }
 
     private String getExtension(String fileName) {

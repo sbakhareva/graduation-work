@@ -3,32 +3,38 @@ package ru.skypro.homework.utils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.skypro.homework.model.UserEntity;
+import ru.skypro.homework.dto.Role;
 
 import java.util.Collection;
 import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final UserEntity user;
+    private final String email;
+    private final String password;
+    private final Role role;
+    private final boolean enabled;
 
-    public CustomUserDetails(UserEntity user) {
-        this.user = user;
+    public CustomUserDetails(String email, String password, Role role, boolean enabled) {
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.enabled = enabled;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return email;
     }
 
     @Override
@@ -48,6 +54,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return user.isEnabled();
+        return enabled;
     }
 }

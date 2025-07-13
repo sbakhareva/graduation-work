@@ -1,7 +1,7 @@
 package ru.skypro.homework.service;
 
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.skypro.homework.dto.Comment;
 import ru.skypro.homework.dto.Comments;
 import ru.skypro.homework.dto.CreateOrUpdateComment;
@@ -23,17 +23,23 @@ import java.util.List;
 @Transactional
 public class CommentsService {
 
-    private final CommentDTOMapper commentDTOMapper = new CommentDTOMapper();
-    private final CommentsDTOMapper commentsDTOMapper = new CommentsDTOMapper(commentDTOMapper);
-    private final CreateOrUpdateCommentDTOMapper createOrUpdateCommentDTOMapper = new CreateOrUpdateCommentDTOMapper();
+    private final CommentDTOMapper commentDTOMapper;
+    private final CommentsDTOMapper commentsDTOMapper;
+    private final CreateOrUpdateCommentDTOMapper createOrUpdateCommentDTOMapper;
 
     private final AdRepository adRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
 
-    public CommentsService(AdRepository adRepository,
+    public CommentsService(CommentDTOMapper commentDTOMapper,
+                           CommentsDTOMapper commentsDTOMapper,
+                           CreateOrUpdateCommentDTOMapper createOrUpdateCommentDTOMapper,
+                           AdRepository adRepository,
                            CommentRepository commentRepository,
                            UserRepository userRepository) {
+        this.commentDTOMapper = commentDTOMapper;
+        this.commentsDTOMapper = commentsDTOMapper;
+        this.createOrUpdateCommentDTOMapper = createOrUpdateCommentDTOMapper;
         this.adRepository = adRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;

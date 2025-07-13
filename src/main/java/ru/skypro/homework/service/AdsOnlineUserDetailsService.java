@@ -1,5 +1,6 @@
 package ru.skypro.homework.service;
 
+import org.hibernate.Hibernate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +22,17 @@ public class AdsOnlineUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден."));
-        return new CustomUserDetails(user);
+
+        if (Hibernate.isInitialized(user.getImage()) && user.getImage() != null) {
+            Hibernate.initialize(user.getImage());
+        }
+
+
+        return new CustomUserDetails(
+                user.getEmail(),
+                user.getPassword(),
+                user.getRole(),
+                user.isEnabled()
+        );
     }
 }

@@ -1,13 +1,14 @@
 package ru.skypro.homework.mappers;
 
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.CreateOrUpdateComment;
 import ru.skypro.homework.model.AdEntity;
 import ru.skypro.homework.model.CommentEntity;
 import ru.skypro.homework.model.UserEntity;
 
-import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
+import static ru.skypro.homework.utils.ImageURLGenerator.generateUserImageUrl;
 
 /**
  * Этот маппер позволяет обновить поля сущности CommentEntity из CreateOrUpdateComment,
@@ -31,9 +32,13 @@ public class CreateOrUpdateCommentDTOMapper {
         return CommentEntity.builder()
                 .authorId(user.getId())
                 .authorFirstName(user.getFirstName())
-                .authorImage(generateImageUrl(user))
+                .authorImage(generateUserImageUrl(user.getId(), hasImage(user)))
                 .text(createOrUpdateComment.getText())
                 .ad(ad)
                 .build();
+    }
+
+    private boolean hasImage(UserEntity user) {
+        return Hibernate.isInitialized(user.getImage()) && user.getImage() != null;
     }
 }

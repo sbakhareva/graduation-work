@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,6 +19,9 @@ import ru.skypro.homework.model.UserImage;
 import ru.skypro.homework.service.UserImageService;
 import ru.skypro.homework.service.UserService;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.PrivateKey;
 
 @RestController
@@ -70,15 +74,20 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "/images/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
-    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer id) {
-        UserImage image = userImageService.getImage(id);
+    @GetMapping(value = "/user-images/by-user-id/{id}", produces = "image/*")
+    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer userId) {
+        UserImage image = userImageService.getImage(userId);
+        byte[] imageBytes;
+        try {
+            imageBytes = Files.readAllBytes(Path.of(image.getFilePath()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.valueOf(image.getMediaType()));
-        headers.setContentLength(image.getFileSize());
+        headers.setContentType(MediaType.parseMediaType(image.getMediaType()));
+        headers.setContentLength(imageBytes.length);
 
-        return new ResponseEntity<>(image.getPreview(), headers, HttpStatus.OK);
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
-
 }

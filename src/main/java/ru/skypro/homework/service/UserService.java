@@ -1,10 +1,10 @@
 package ru.skypro.homework.service;
 
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUser;
@@ -26,15 +26,22 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private final UserDTOMapper userDTOMapper = new UserDTOMapper();
-    private final UpdateUserDTOMapper updateUserDTOMapper = new UpdateUserDTOMapper();
+    private final UserDTOMapper userDTOMapper;
+    private final UpdateUserDTOMapper updateUserDTOMapper;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserImageRepository userImageRepository;
     private final UserImageService userImageService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserImageRepository userImageRepository, UserImageService userImageService) {
+    public UserService(UserDTOMapper userDTOMapper,
+                       UpdateUserDTOMapper updateUserDTOMapper,
+                       UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       UserImageRepository userImageRepository,
+                       UserImageService userImageService) {
+        this.userDTOMapper = userDTOMapper;
+        this.updateUserDTOMapper = updateUserDTOMapper;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userImageRepository = userImageRepository;
@@ -55,6 +62,7 @@ public class UserService {
         return true;
     }
 
+    @Transactional(readOnly = true)
     public User getUser(String email) {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));

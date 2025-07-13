@@ -1,11 +1,12 @@
 package ru.skypro.homework.mappers;
 
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.Ad;
 import ru.skypro.homework.model.AdEntity;
 
-import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
+import static ru.skypro.homework.utils.ImageURLGenerator.generateAdImageUrl;
 
 /**
  * Маппер AdEntity <-> Ad
@@ -20,10 +21,14 @@ public class AdDTOMapper {
         }
         return new Ad(
                 ad.getUser().getId(),
-                generateImageUrl(ad),
+                generateAdImageUrl(ad.getId(), hasImage(ad)),
                 ad.getId(),
                 ad.getPrice(),
                 ad.getTitle()
         );
+    }
+
+    private boolean hasImage(AdEntity ad) {
+        return Hibernate.isInitialized(ad.getImage()) && ad.getImage() != null;
     }
 }

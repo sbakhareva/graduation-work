@@ -121,9 +121,9 @@ public class AdsController {
     }
 
     @Transactional
-    @GetMapping(value = "/images/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
-    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer id) {
-        AdImage image = adImageService.getImage(id);
+    @GetMapping(value = "/ads-images/by-ad-id/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
+    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer adId) {
+        AdImage image = adImageService.getImage(adId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.valueOf(image.getMediaType()));
