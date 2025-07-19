@@ -120,15 +120,15 @@ public class AdsController {
         return commentsService.updateComment(adId, commentId, comment, email);
     }
 
-    @Transactional
-    @GetMapping(value = "/ads-images/by-ad-id/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
-    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer adId) {
-        AdImage image = adImageService.getImage(adId);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.valueOf(image.getMediaType()));
-        headers.setContentLength(image.getFileSize());
-
-        return new ResponseEntity<>(image.getPreview(), headers, HttpStatus.OK);
-    }
+//    @Transactional
+//    @GetMapping(value = "/ads-images/by-ad-id/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
+//    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer adId) {
+//        AdImage image = adImageService.getImage(adId);
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.valueOf(image.getMediaType()));
+//        headers.setContentLength(image.getFileSize());
+//
+//        return new ResponseEntity<>(image.getPreview(), headers, HttpStatus.OK);
+//    }
 }

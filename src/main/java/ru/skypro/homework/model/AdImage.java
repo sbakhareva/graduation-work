@@ -23,10 +23,6 @@ public class AdImage {
     private String filePath;
     private long fileSize;
     private String mediaType;
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @JsonIgnore
-    private byte[] preview;
 
     @OneToOne
     @JoinColumn(name = "ad_id")

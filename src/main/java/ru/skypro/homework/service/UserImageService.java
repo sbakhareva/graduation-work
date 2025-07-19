@@ -83,7 +83,6 @@ public class UserImageService {
 
         userImageRepository.save(userImage);
         userImage.setFilePath("/user-images/" + userImage.getId());
-        userImage.setPreview(generateImagePreview(filePath));
     }
 
     private String getExtension(String fileName) {

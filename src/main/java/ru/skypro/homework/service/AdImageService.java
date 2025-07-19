@@ -75,7 +75,6 @@ public class AdImageService {
         adImage.setAd(ad.get());
         adImage.setFileSize(image.getSize());
         adImage.setMediaType(image.getContentType());
-        adImage.setPreview(generateImagePreview(filePath));
 
         adImageRepository.save(adImage);
         adImage.setFilePath("/ads-images/" + adImage.getId());

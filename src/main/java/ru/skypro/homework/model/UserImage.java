@@ -14,6 +14,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserImage {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -22,10 +23,6 @@ public class UserImage {
     private String filePath;
     private long fileSize;
     private String mediaType;
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @JsonIgnore
-    private byte[] preview;
 
     @OneToOne
     @JoinColumn(name = "user_id")
