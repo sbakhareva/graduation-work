@@ -12,8 +12,6 @@ public interface AdRepository extends JpaRepository<AdEntity, Long> {
 
     Optional<AdEntity> findById(Integer id);
 
-    void deleteById(Integer id);
-
     boolean existsById(Integer id);
 
     List<AdEntity> findAllByUserId(Integer id);
