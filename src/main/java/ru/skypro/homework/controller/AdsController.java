@@ -124,7 +124,13 @@ public class AdsController {
     }
 
     @GetMapping(value = "/ads-images/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
-    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer id) {
-        return adImageService.getImage(id);
+    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer imageId) {
+        return adImageService.getImage(imageId);
+    }
+
+    @GetMapping(value = "/{adId}/ads-images/{imageId}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
+    public ResponseEntity<byte[]> getThisImage(@PathVariable("adId") Integer adId,
+                                           @PathVariable("imageId") Integer imageId) {
+        return adImageService.getThisAdImage(adId, imageId);
     }
 }

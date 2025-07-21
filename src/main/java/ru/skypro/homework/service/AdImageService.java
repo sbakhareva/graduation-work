@@ -43,10 +43,26 @@ public class AdImageService {
         this.adRepository = adRepository;
     }
 
-    @Transactional(readOnly = true)
     public ResponseEntity<byte[]> getImage(Integer id) {
-        AdImage image =  adImageRepository.findById(id)
+        AdImage image = adImageRepository.findById(id)
                 .orElseThrow(() -> new NoImagesFoundException("Не найдено картинок с id " + id));
+        byte[] imageBytes;
+        try {
+            imageBytes = Files.readAllBytes(Path.of(image.getFilePath()));
+        } catch (IOException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(image.getMediaType()));
+        headers.setContentLength(imageBytes.length);
+
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+    }
+
+    public ResponseEntity<byte[]> getThisAdImage(Integer adId, Integer imageId) {
+        AdImage image = adImageRepository.findByAdId(adId)
+                .orElseThrow(() -> new NoImagesFoundException("Не найдено картинок с id " + imageId + " для объявления " + adId));
         byte[] imageBytes;
         try {
             imageBytes = Files.readAllBytes(Path.of(image.getFilePath()));

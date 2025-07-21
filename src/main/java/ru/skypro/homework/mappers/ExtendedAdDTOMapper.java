@@ -8,6 +8,7 @@ import ru.skypro.homework.model.AdEntity;
 import ru.skypro.homework.model.UserEntity;
 
 import static ru.skypro.homework.utils.ImageURLGenerator.generateAdImageUrl;
+import static ru.skypro.homework.utils.ImageURLGenerator.generateThisAdImageUrl;
 
 @Component
 @Transactional
@@ -23,14 +24,10 @@ public class ExtendedAdDTOMapper {
                 user.getLastName(),
                 ad.getDescription(),
                 user.getEmail(),
-                generateAdImageUrl(ad.getImage(), hasImage(ad)),
+                generateThisAdImageUrl(ad.getId(), ad.getImage()),
                 user.getPhone(),
                 ad.getPrice(),
                 ad.getTitle()
         );
-    }
-
-    private boolean hasImage(AdEntity ad) {
-        return Hibernate.isInitialized(ad.getImage()) && ad.getImage() != null;
     }
 }

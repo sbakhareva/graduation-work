@@ -21,4 +21,12 @@ public class ImageURLGenerator {
             return "/images/default-user-image.png";
         }
     }
+
+    public static String generateThisAdImageUrl(Integer adId, AdImage adImage) {
+        if (adImage != null) {
+            return String.format("/ads/%d/ads-images/%d", adId, adImage.getId());
+        } else {
+            return "/images/default-ad-image.png";
+        }
+    }
 }
