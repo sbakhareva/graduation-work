@@ -1,4 +1,4 @@
-package ru.skypro.homework.service;
+package ru.skypro.homework.service.impl;
 
 import org.hibernate.Hibernate;
 import org.springframework.security.core.userdetails.UserDetails;

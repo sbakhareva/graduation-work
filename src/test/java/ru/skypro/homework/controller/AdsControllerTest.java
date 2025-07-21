@@ -22,9 +22,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
-import ru.skypro.homework.service.AdImageService;
-import ru.skypro.homework.service.AdsService;
-import ru.skypro.homework.service.CommentsService;
+import ru.skypro.homework.service.impl.AdImageService;
+import ru.skypro.homework.service.impl.AdsService;
+import ru.skypro.homework.service.impl.CommentsService;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;

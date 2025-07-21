@@ -12,8 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
-import ru.skypro.homework.service.UserImageService;
-import ru.skypro.homework.service.UserService;
+import ru.skypro.homework.service.impl.UserImageService;
+import ru.skypro.homework.service.impl.UserService;
 
 @RestController
 @AllArgsConstructor
@@ -106,6 +106,7 @@ public class UserController {
      * @param id идентификатор фото пользователя
      * @return картинка в виде массива байт
      */
+    @Operation(summary = "Получение фото профиля")
     @GetMapping(value = "/users-images/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
     public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer id) {
         return userImageService.getImage(id);

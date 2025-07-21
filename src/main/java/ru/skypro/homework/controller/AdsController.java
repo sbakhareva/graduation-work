@@ -9,9 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
 
 import org.springframework.http.MediaType;
-import ru.skypro.homework.service.AdImageService;
-import ru.skypro.homework.service.AdsService;
-import ru.skypro.homework.service.CommentsService;
+import ru.skypro.homework.service.impl.AdImageService;
+import ru.skypro.homework.service.impl.AdsService;
+import ru.skypro.homework.service.impl.CommentsService;
 
 @RestController
 @AllArgsConstructor
@@ -207,6 +207,7 @@ public class AdsController {
      * @param imageId идентификатор картинки в базе данных
      * @return картинка в виде массива байт
      */
+    @Operation(summary = "Получение картинок объявлений", tags = {"Объявления"})
     @GetMapping(value = "/ads-images/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
     public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer imageId) {
         return adImageService.getImage(imageId);
@@ -218,6 +219,7 @@ public class AdsController {
      * @param imageId идентификатор картинки
      * @return картинка в виде массива байт
      */
+    @Operation(summary = "Получение картинки текущего объявления", tags = {"Объявления"})
     @GetMapping(value = "/{adId}/ads-images/{imageId}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
     public ResponseEntity<byte[]> getThisImage(@PathVariable("adId") Integer adId,
                                                @PathVariable("imageId") Integer imageId) {

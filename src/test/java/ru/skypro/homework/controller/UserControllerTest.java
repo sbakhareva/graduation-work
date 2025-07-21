@@ -22,8 +22,8 @@ import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.Role;
 import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
-import ru.skypro.homework.service.UserImageService;
-import ru.skypro.homework.service.UserService;
+import ru.skypro.homework.service.impl.UserImageService;
+import ru.skypro.homework.service.impl.UserService;
 
 @WebMvcTest(UserController.class)
 class UserControllerTest {

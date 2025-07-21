@@ -1,5 +1,6 @@
-package ru.skypro.homework.service;
+package ru.skypro.homework.service.impl;
 
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,7 @@ import ru.skypro.homework.model.UserEntity;
 import ru.skypro.homework.model.UserImage;
 import ru.skypro.homework.repository.UserImageRepository;
 import ru.skypro.homework.repository.UserRepository;
+import ru.skypro.homework.service.ImageService;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -28,7 +30,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
 @Transactional
-public class UserImageService {
+public class UserImageService implements ImageService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserImageService.class);
 
@@ -64,7 +66,7 @@ public class UserImageService {
     }
 
     @Transactional
-    public void uploadUserImage(Integer userId, MultipartFile image) throws IOException {
+    public void uploadImage(Integer userId, MultipartFile image) throws IOException {
         if (!ALLOWED_TYPES.contains(image.getContentType())) {
             throw new InvalidFileTypeException();
         }
@@ -101,18 +103,14 @@ public class UserImageService {
         }
     }
 
-    private String getExtension(String fileName) {
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
-    }
-
     public UserImage getUserImage(Integer userId) {
         return userImageRepository.findByUserId(userId)
                 .orElse(new UserImage());
     }
 
-    public void deleteUserImageFile(Integer id) {
-        UserImage userImage = userImageRepository.findById(id)
-                .orElseThrow(() -> new NoImagesFoundException("Фото " + id + " не найдено"));
+    public void deleteImageFile(Integer userId) {
+        UserImage userImage = userImageRepository.findByUserId(userId)
+                .orElseThrow(() -> new NoImagesFoundException("Фото " + userId + " не найдено"));
 
         Path filePath = Path.of(userImage.getFilePath());
         try {

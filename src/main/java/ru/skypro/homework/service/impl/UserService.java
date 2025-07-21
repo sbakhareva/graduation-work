@@ -1,5 +1,6 @@
-package ru.skypro.homework.service;
+package ru.skypro.homework.service.impl;
 
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,7 @@ import java.io.IOException;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -33,20 +35,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserImageRepository userImageRepository;
     private final UserImageService userImageService;
-
-    public UserService(UserDTOMapper userDTOMapper,
-                       UpdateUserDTOMapper updateUserDTOMapper,
-                       UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       UserImageRepository userImageRepository,
-                       UserImageService userImageService) {
-        this.userDTOMapper = userDTOMapper;
-        this.updateUserDTOMapper = updateUserDTOMapper;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userImageRepository = userImageRepository;
-        this.userImageService = userImageService;
-    }
 
     public boolean updatePassword(NewPassword newPassword, String email) {
         UserEntity userEntity = userRepository.findByEmail(email)
@@ -83,7 +71,7 @@ public class UserService {
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
         if (userImageRepository.existsByUserId(user.getId())) {
-            userImageService.deleteUserImageFile(user.getImage().getId());
+            userImageService.deleteImageFile(user.getImage().getId());
             try {
                 userImageRepository.deleteByUserId(user.getId());
                 logger.info("Старое изображение пользователя {} удалено", email);
@@ -92,7 +80,7 @@ public class UserService {
             }
 
             try {
-                userImageService.uploadUserImage(user.getId(), newImage);
+                userImageService.uploadImage(user.getId(), newImage);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -107,7 +95,7 @@ public class UserService {
             }
         }
         try {
-            userImageService.uploadUserImage(user.getId(), newImage);
+            userImageService.uploadImage(user.getId(), newImage);
         } catch (IOException e) {
             logger.error("Ошибка при сохранении изображения");
         }

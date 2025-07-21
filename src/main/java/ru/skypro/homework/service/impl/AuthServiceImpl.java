@@ -1,5 +1,6 @@
 package ru.skypro.homework.service.impl;
 
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,11 +10,11 @@ import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.mappers.RegisterDTOMapper;
 import ru.skypro.homework.model.UserEntity;
 import ru.skypro.homework.repository.UserRepository;
-import ru.skypro.homework.service.AdsOnlineUserDetailsService;
 import ru.skypro.homework.service.AuthService;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
@@ -22,14 +23,6 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder encoder;
     private final RegisterDTOMapper registerDTOMapper = new RegisterDTOMapper();
     private final UserRepository userRepository;
-
-    public AuthServiceImpl(AdsOnlineUserDetailsService adsOnlineUserDetailsService,
-                           PasswordEncoder passwordEncoder,
-                           UserRepository userRepository) {
-        this.adsOnlineUserDetailsService = adsOnlineUserDetailsService;
-        this.encoder = passwordEncoder;
-        this.userRepository = userRepository;
-    }
 
     @Override
     public boolean login(String username, String password) {

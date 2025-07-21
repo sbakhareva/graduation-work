@@ -1,5 +1,6 @@
-package ru.skypro.homework.service;
+package ru.skypro.homework.service.impl;
 
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,7 @@ import ru.skypro.homework.model.AdEntity;
 import ru.skypro.homework.model.AdImage;
 import ru.skypro.homework.repository.AdImageRepository;
 import ru.skypro.homework.repository.AdRepository;
+import ru.skypro.homework.service.ImageService;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -26,7 +28,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
 @Transactional
-public class AdImageService {
+public class AdImageService implements ImageService {
 
     private static final Logger logger = LoggerFactory.getLogger(AdImageService.class);
 
@@ -77,7 +79,7 @@ public class AdImageService {
         return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
 
-    public void uploadAdImage(Integer adId, MultipartFile image) throws IOException {
+    public void uploadImage(Integer adId, MultipartFile image) throws IOException {
         if (!ALLOWED_TYPES.contains(image.getContentType())) {
             throw new InvalidFileTypeException();
         }
@@ -114,17 +116,12 @@ public class AdImageService {
         }
     }
 
-    private String getExtension(String fileName) {
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
-    }
-
     public AdImage getAdImage(Integer adId) {
         return adImageRepository.findByAdId(adId)
                 .orElse(new AdImage());
-
     }
 
-    public void deleteAdImageFile(Integer adId) {
+    public void deleteImageFile(Integer adId) {
         AdImage adImage = adImageRepository.findByAdId(adId)
                 .orElseThrow(() -> new NoImagesFoundException("Картинки для объявления " + adId + " не найдены"));
 

@@ -1,5 +1,6 @@
-package ru.skypro.homework.service;
+package ru.skypro.homework.service.impl;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.skypro.homework.dto.Comment;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class CommentsService {
 
     private final CommentDTOMapper commentDTOMapper;
@@ -30,20 +32,6 @@ public class CommentsService {
     private final AdRepository adRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
-
-    public CommentsService(CommentDTOMapper commentDTOMapper,
-                           CommentsDTOMapper commentsDTOMapper,
-                           CreateOrUpdateCommentDTOMapper createOrUpdateCommentDTOMapper,
-                           AdRepository adRepository,
-                           CommentRepository commentRepository,
-                           UserRepository userRepository) {
-        this.commentDTOMapper = commentDTOMapper;
-        this.commentsDTOMapper = commentsDTOMapper;
-        this.createOrUpdateCommentDTOMapper = createOrUpdateCommentDTOMapper;
-        this.adRepository = adRepository;
-        this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
-    }
 
     private boolean isAdmin(String email) {
         return userRepository.findByEmail(email)

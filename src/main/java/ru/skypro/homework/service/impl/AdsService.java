@@ -1,6 +1,7 @@
-package ru.skypro.homework.service;
+package ru.skypro.homework.service.impl;
 
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.io.IOException;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class AdsService {
 
     private static final Logger logger = LoggerFactory.getLogger(AdsService.class);
@@ -35,23 +37,6 @@ public class AdsService {
     private final AdImageService adImageService;
     private final UserRepository userRepository;
     private final AdImageRepository adImageRepository;
-
-    public AdsService(AdDTOMapper adDTOMapper, AdsDTOMapper adsDTOMapper,
-                      ExtendedAdDTOMapper extendedAdDTOMapper,
-                      CreateOrUpdateAdDTOMapper createOrUpdateAdDTOMapper,
-                      AdRepository adRepository,
-                      AdImageService adImageService,
-                      UserRepository userRepository,
-                      AdImageRepository adImageRepository) {
-        this.adDTOMapper = adDTOMapper;
-        this.adsDTOMapper = adsDTOMapper;
-        this.extendedAdDTOMapper = extendedAdDTOMapper;
-        this.createOrUpdateAdDTOMapper = createOrUpdateAdDTOMapper;
-        this.adRepository = adRepository;
-        this.adImageService = adImageService;
-        this.userRepository = userRepository;
-        this.adImageRepository = adImageRepository;
-    }
 
     private boolean isAdmin(String email) {
         return userRepository.findByEmail(email)
@@ -79,7 +64,7 @@ public class AdsService {
 
         if (image != null && !image.isEmpty()) {
             try {
-                adImageService.uploadAdImage(adEntity.getId(), image);
+                adImageService.uploadImage(adEntity.getId(), image);
             } catch (IOException e) {
                 System.out.println(("Ошибка при загрузке изображения"));
             }
@@ -138,7 +123,7 @@ public class AdsService {
             throw new NoneOfYourBusinessException("Вы не можете обновить картинку этого объявления");
         }
 
-        adImageService.deleteAdImageFile(id);
+        adImageService.deleteImageFile(id);
         try {
             adImageRepository.deleteByAdId(ad.getId());
         } catch (Exception e) {
@@ -146,9 +131,9 @@ public class AdsService {
         }
 
         try {
-            adImageService.uploadAdImage(ad.getId(), image);
+            adImageService.uploadImage(ad.getId(), image);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.error("Ошибка при сохранении изображения");
         }
         AdImage newImage = adImageRepository.findByAdId(id)
                 .orElseThrow(() -> new NoImagesFoundException("Не найдено изображений для объявления с id " + id));
