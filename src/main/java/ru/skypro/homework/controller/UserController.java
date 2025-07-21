@@ -74,20 +74,8 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "/user-images/by-user-id/{id}", produces = "image/*")
-    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer userId) {
-        UserImage image = userImageService.getImage(userId);
-        byte[] imageBytes;
-        try {
-            imageBytes = Files.readAllBytes(Path.of(image.getFilePath()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(image.getMediaType()));
-        headers.setContentLength(imageBytes.length);
-
-        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+    @GetMapping(value = "/users-images/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
+    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer id) {
+        return userImageService.getImage(id);
     }
 }

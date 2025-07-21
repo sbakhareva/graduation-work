@@ -3,6 +3,10 @@ package ru.skypro.homework.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,9 +16,6 @@ import ru.skypro.homework.model.AdImage;
 import ru.skypro.homework.repository.AdImageRepository;
 import ru.skypro.homework.repository.AdRepository;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,9 +44,21 @@ public class AdImageService {
     }
 
     @Transactional(readOnly = true)
-    public AdImage getImage(Integer id) {
-        return adImageRepository.findById(id)
+    public ResponseEntity<byte[]> getImage(Integer id) {
+        AdImage image =  adImageRepository.findById(id)
                 .orElseThrow(() -> new NoImagesFoundException("Не найдено картинок с id " + id));
+        byte[] imageBytes;
+        try {
+            imageBytes = Files.readAllBytes(Path.of(image.getFilePath()));
+        } catch (IOException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(image.getMediaType()));
+        headers.setContentLength(imageBytes.length);
+
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
 
     public void uploadAdImage(Integer adId, MultipartFile image) throws IOException {
@@ -58,8 +71,21 @@ public class AdImageService {
         Optional<AdEntity> ad = Optional.of(adRepository.findById(adId)
                 .orElseThrow(() -> new NoAdsFoundException(adId)));
 
-        Path filePath = Path.of(directory, adId + "."
-                + getExtension(Objects.requireNonNull(image.getOriginalFilename())));
+        adImageRepository.findByAdId(adId).ifPresent(adImageRepository::delete);
+
+        AdImage adImage = getAdImage(adId);
+        adImage.setAd(ad.get());
+        adImage.setFileSize(image.getSize());
+        adImage.setMediaType(image.getContentType());
+
+        adImageRepository.save(adImage);
+
+        String extension = getExtension(Objects.requireNonNull(image.getOriginalFilename()));
+        String fullFilePath = directory + "/" + adImage.getId() + "." + extension;
+        adImage.setFilePath(fullFilePath);
+        adImageRepository.save(adImage);
+
+        Path filePath = Path.of(fullFilePath);
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
 
@@ -70,14 +96,6 @@ public class AdImageService {
         ) {
             bis.transferTo(bos);
         }
-
-        AdImage adImage = getAdImage(adId);
-        adImage.setAd(ad.get());
-        adImage.setFileSize(image.getSize());
-        adImage.setMediaType(image.getContentType());
-
-        adImageRepository.save(adImage);
-        adImage.setFilePath("/ads-images/" + adImage.getId());
     }
 
     private String getExtension(String fileName) {
@@ -88,23 +106,6 @@ public class AdImageService {
         return adImageRepository.findByAdId(adId)
                 .orElse(new AdImage());
 
-    }
-
-    private byte[] generateImagePreview(Path filePath) throws IOException {
-        try (InputStream is = Files.newInputStream(filePath);
-             BufferedInputStream bis = new BufferedInputStream(is, 1024);
-             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            BufferedImage image = ImageIO.read(bis);
-
-            int height = image.getHeight() / (image.getWidth() / 100);
-            BufferedImage preview = new BufferedImage(100, height, image.getType());
-            Graphics2D graphics = preview.createGraphics();
-            graphics.drawImage(image, 0, 0, 100, height, null);
-            graphics.dispose();
-
-            ImageIO.write(preview, getExtension(filePath.getFileName().toString()), baos);
-            return baos.toByteArray();
-        }
     }
 
     public void deleteAdImageFile(Integer adId) {

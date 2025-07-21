@@ -21,7 +21,7 @@ public class AdDTOMapper {
         }
         return new Ad(
                 ad.getUser().getId(),
-                generateAdImageUrl(ad.getId(), hasImage(ad)),
+                generateAdImageUrl(ad.getImage(), hasImage(ad)),
                 ad.getId(),
                 ad.getPrice(),
                 ad.getTitle()

@@ -32,13 +32,9 @@ public class CreateOrUpdateCommentDTOMapper {
         return CommentEntity.builder()
                 .authorId(user.getId())
                 .authorFirstName(user.getFirstName())
-                .authorImage(generateUserImageUrl(user.getId(), hasImage(user)))
+                .authorImage(generateUserImageUrl(user.getImage()))
                 .text(createOrUpdateComment.getText())
                 .ad(ad)
                 .build();
-    }
-
-    private boolean hasImage(UserEntity user) {
-        return Hibernate.isInitialized(user.getImage()) && user.getImage() != null;
     }
 }

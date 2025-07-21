@@ -83,7 +83,7 @@ public class UserService {
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
         if (userImageRepository.existsByUserId(user.getId())) {
-            userImageService.deleteUserImageFile(user.getId());
+            userImageService.deleteUserImageFile(user.getImage().getId());
             try {
                 userImageRepository.deleteByUserId(user.getId());
                 logger.info("Старое изображение пользователя {} удалено", email);

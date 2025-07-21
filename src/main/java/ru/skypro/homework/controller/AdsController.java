@@ -6,14 +6,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
 
 import org.springframework.http.MediaType;
 import ru.skypro.homework.model.AdImage;
-import ru.skypro.homework.model.UserImage;
 import ru.skypro.homework.service.AdImageService;
 import ru.skypro.homework.service.AdsService;
 import ru.skypro.homework.service.CommentsService;
@@ -125,20 +123,8 @@ public class AdsController {
         return commentsService.updateComment(adId, commentId, comment, email);
     }
 
-    @GetMapping(value = "/ads-images/by-ad-id/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
-    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer adId) {
-        AdImage image = adImageService.getImage(adId);
-        byte[] imageBytes;
-        try {
-            imageBytes = Files.readAllBytes(Path.of(image.getFilePath()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(image.getMediaType()));
-        headers.setContentLength(imageBytes.length);
-
-        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+    @GetMapping(value = "/ads-images/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
+    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer id) {
+        return adImageService.getImage(id);
     }
 }

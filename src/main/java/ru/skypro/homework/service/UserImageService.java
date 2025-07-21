@@ -3,6 +3,10 @@ package ru.skypro.homework.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,9 +16,6 @@ import ru.skypro.homework.model.UserImage;
 import ru.skypro.homework.repository.UserImageRepository;
 import ru.skypro.homework.repository.UserRepository;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,9 +46,21 @@ public class UserImageService {
     }
 
     @Transactional(readOnly = true)
-    public UserImage getImage(Integer userId) {
-        return userImageRepository.findByUserId(userId)
-                .orElseThrow(() -> new NoImagesFoundException("Не найдены фото пользователя с id " + userId));
+    public ResponseEntity<byte[]> getImage(Integer id) {
+        UserImage image = userImageRepository.findById(id)
+                .orElseThrow(() -> new NoImagesFoundException("Не найдены фото пользователя с id " + id));
+        byte[] imageBytes;
+        try {
+            imageBytes = Files.readAllBytes(Path.of(image.getFilePath()));
+        } catch (IOException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(image.getMediaType()));
+        headers.setContentLength(imageBytes.length);
+
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
 
     @Transactional
@@ -63,8 +76,19 @@ public class UserImageService {
 
         userImageRepository.findByUserId(userId).ifPresent(userImageRepository::delete);
 
-        Path filePath = Path.of(directory, userId + "."
-                + getExtension(Objects.requireNonNull(image.getOriginalFilename())));
+        UserImage userImage = getUserImage(userId);
+        userImage.setUser(user.get());
+        userImage.setFileSize(image.getSize());
+        userImage.setMediaType(image.getContentType());
+
+        userImageRepository.save(userImage);
+
+        String extension = getExtension(Objects.requireNonNull(image.getOriginalFilename()));
+        String fullFilePath = directory + "/" + userImage.getId() + "." + extension;
+        userImage.setFilePath(fullFilePath);
+        userImageRepository.save(userImage);
+
+        Path filePath = Path.of(fullFilePath);
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
 
@@ -75,14 +99,6 @@ public class UserImageService {
         ) {
             bis.transferTo(bos);
         }
-
-        UserImage userImage = getUserImage(userId);
-        userImage.setUser(user.get());
-        userImage.setFileSize(image.getSize());
-        userImage.setMediaType(image.getContentType());
-
-        userImageRepository.save(userImage);
-        userImage.setFilePath("/user-images/" + userImage.getId());
     }
 
     private String getExtension(String fileName) {
@@ -94,33 +110,9 @@ public class UserImageService {
                 .orElse(new UserImage());
     }
 
-    private byte[] generateImagePreview(Path filePath) throws IOException {
-        try (InputStream is = Files.newInputStream(filePath);
-             BufferedInputStream bis = new BufferedInputStream(is, 1024);
-             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            BufferedImage image = ImageIO.read(bis);
-            if (image == null) {
-                throw new IOException("Не удалось прочитать изображение из файла: " + filePath);
-            }
-
-            int previewWidth = 100;
-            int previewHeight = (int) ((double) image.getHeight() / image.getWidth() * previewWidth);
-            BufferedImage preview = new BufferedImage(100, previewHeight, image.getType());
-            Graphics2D graphics = preview.createGraphics();
-            try {
-                graphics.drawImage(image, 0, 0, 100, previewHeight, null);
-            } finally {
-                graphics.dispose();
-            }
-
-            ImageIO.write(preview, getExtension(filePath.getFileName().toString()), baos);
-            return baos.toByteArray();
-        }
-    }
-
-    public void deleteUserImageFile(Integer userId) {
-        UserImage userImage = userImageRepository.findByUserId(userId)
-                .orElseThrow(() -> new NoImagesFoundException("Фото пользователя " + userId + " не найдено"));
+    public void deleteUserImageFile(Integer id) {
+        UserImage userImage = userImageRepository.findById(id)
+                .orElseThrow(() -> new NoImagesFoundException("Фото " + id + " не найдено"));
 
         Path filePath = Path.of(userImage.getFilePath());
         try {
