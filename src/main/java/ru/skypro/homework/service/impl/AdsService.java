@@ -1,9 +1,9 @@
-package ru.skypro.homework.service;
+package ru.skypro.homework.service.impl;
 
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
@@ -21,33 +21,22 @@ import ru.skypro.homework.repository.UserRepository;
 
 import java.io.IOException;
 
-import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
-
 @Service
 @Transactional
+@AllArgsConstructor
 public class AdsService {
 
     private static final Logger logger = LoggerFactory.getLogger(AdsService.class);
 
-    private final AdDTOMapper adDTOMapper = new AdDTOMapper();
-    private final AdsDTOMapper adsDTOMapper = new AdsDTOMapper(adDTOMapper);
-    private final ExtendedAdDTOMapper extendedAdDTOMapper = new ExtendedAdDTOMapper();
-    private final CreateOrUpdateAdDTOMapper createOrUpdateAdDTOMapper = new CreateOrUpdateAdDTOMapper();
+    private final AdDTOMapper adDTOMapper;
+    private final AdsDTOMapper adsDTOMapper;
+    private final ExtendedAdDTOMapper extendedAdDTOMapper;
+    private final CreateOrUpdateAdDTOMapper createOrUpdateAdDTOMapper;
 
     private final AdRepository adRepository;
     private final AdImageService adImageService;
     private final UserRepository userRepository;
     private final AdImageRepository adImageRepository;
-
-    public AdsService(AdRepository adRepository,
-                      AdImageService adImageService,
-                      UserRepository userRepository,
-                      AdImageRepository adImageRepository) {
-        this.adRepository = adRepository;
-        this.adImageService = adImageService;
-        this.userRepository = userRepository;
-        this.adImageRepository = adImageRepository;
-    }
 
     private boolean isAdmin(String email) {
         return userRepository.findByEmail(email)
@@ -75,7 +64,7 @@ public class AdsService {
 
         if (image != null && !image.isEmpty()) {
             try {
-                adImageService.uploadAdImage(adEntity.getId(), image);
+                adImageService.uploadImage(adEntity.getId(), image);
             } catch (IOException e) {
                 System.out.println(("Ошибка при загрузке изображения"));
             }
@@ -134,7 +123,7 @@ public class AdsService {
             throw new NoneOfYourBusinessException("Вы не можете обновить картинку этого объявления");
         }
 
-        adImageService.deleteAdImageFile(id);
+        adImageService.deleteImageFile(id);
         try {
             adImageRepository.deleteByAdId(ad.getId());
         } catch (Exception e) {
@@ -142,13 +131,13 @@ public class AdsService {
         }
 
         try {
-            adImageService.uploadAdImage(ad.getId(), image);
+            adImageService.uploadImage(ad.getId(), image);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.error("Ошибка при сохранении изображения");
         }
         AdImage newImage = adImageRepository.findByAdId(id)
                 .orElseThrow(() -> new NoImagesFoundException("Не найдено изображений для объявления с id " + id));
         ad.setImage(newImage);
-        return generateImageUrl(ad);
+        return newImage.getFilePath();
     }
 }

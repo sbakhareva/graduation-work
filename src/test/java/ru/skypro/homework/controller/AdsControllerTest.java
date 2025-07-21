@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -23,9 +22,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
-import ru.skypro.homework.model.CommentEntity;
-import ru.skypro.homework.service.AdsService;
-import ru.skypro.homework.service.CommentsService;
+import ru.skypro.homework.service.impl.AdImageService;
+import ru.skypro.homework.service.impl.AdsService;
+import ru.skypro.homework.service.impl.CommentsService;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -37,6 +36,8 @@ class AdsControllerTest {
     private MockMvc mockMvc;
     @MockitoBean
     private AdsService adsService;
+    @MockitoBean
+    private AdImageService adImageService;
     @MockitoBean
     private CommentsService commentsService;
 
@@ -198,7 +199,7 @@ class AdsControllerTest {
                 .andExpect(jsonPath("$.count").value(1))
                 .andExpect(jsonPath("$.results[0].author").value(comment.getAuthor()))
                 .andExpect(jsonPath("$.results[0].authorImage").value(comment.getAuthorImage()))
-                .andExpect(jsonPath("$.results[0].authorName").value(comment.getAuthorName()))
+                .andExpect(jsonPath("$.results[0].authorFirstName").value(comment.getAuthorFirstName()))
                 .andExpect(jsonPath("$.results[0].pk").value(comment.getPk()))
                 .andExpect(jsonPath("$.results[0].text").value(comment.getText()));
     }
@@ -220,7 +221,7 @@ class AdsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.author").value(comment.getAuthor()))
                 .andExpect(jsonPath("$.authorImage").value(comment.getAuthorImage()))
-                .andExpect(jsonPath("$.authorName").value(comment.getAuthorName()))
+                .andExpect(jsonPath("$.authorFirstName").value(comment.getAuthorFirstName()))
                 .andExpect(jsonPath("$.text").value(comment.getText()));
     }
 
@@ -249,7 +250,7 @@ class AdsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.author").value(comment.getAuthor()))
                 .andExpect(jsonPath("$.authorImage").value(comment.getAuthorImage()))
-                .andExpect(jsonPath("$.authorName").value(comment.getAuthorName()))
+                .andExpect(jsonPath("$.authorFirstName").value(comment.getAuthorFirstName()))
                 .andExpect(jsonPath("$.text").value(comment.getText()));
     }
 }

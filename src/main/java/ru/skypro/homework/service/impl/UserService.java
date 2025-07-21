@@ -1,10 +1,11 @@
-package ru.skypro.homework.service;
+package ru.skypro.homework.service.impl;
 
-import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUser;
@@ -22,24 +23,18 @@ import java.io.IOException;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private final UserDTOMapper userDTOMapper = new UserDTOMapper();
-    private final UpdateUserDTOMapper updateUserDTOMapper = new UpdateUserDTOMapper();
+    private final UserDTOMapper userDTOMapper;
+    private final UpdateUserDTOMapper updateUserDTOMapper;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserImageRepository userImageRepository;
     private final UserImageService userImageService;
-
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserImageRepository userImageRepository, UserImageService userImageService) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userImageRepository = userImageRepository;
-        this.userImageService = userImageService;
-    }
 
     public boolean updatePassword(NewPassword newPassword, String email) {
         UserEntity userEntity = userRepository.findByEmail(email)
@@ -55,6 +50,7 @@ public class UserService {
         return true;
     }
 
+    @Transactional(readOnly = true)
     public User getUser(String email) {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
@@ -75,7 +71,7 @@ public class UserService {
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
         if (userImageRepository.existsByUserId(user.getId())) {
-            userImageService.deleteUserImageFile(user.getId());
+            userImageService.deleteImageFile(user.getImage().getId());
             try {
                 userImageRepository.deleteByUserId(user.getId());
                 logger.info("Старое изображение пользователя {} удалено", email);
@@ -84,7 +80,7 @@ public class UserService {
             }
 
             try {
-                userImageService.uploadUserImage(user.getId(), newImage);
+                userImageService.uploadImage(user.getId(), newImage);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -99,7 +95,7 @@ public class UserService {
             }
         }
         try {
-            userImageService.uploadUserImage(user.getId(), newImage);
+            userImageService.uploadImage(user.getId(), newImage);
         } catch (IOException e) {
             logger.error("Ошибка при сохранении изображения");
         }

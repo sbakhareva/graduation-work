@@ -16,7 +16,7 @@ public class CommentDTOMapper {
         return new Comment(
                 comment.getAuthorId(),
                 comment.getAuthorImage(),
-                comment.getAuthorName(),
+                comment.getAuthorFirstName(),
                 comment.getCreatedAt(),
                 comment.getId(),
                 comment.getText()

@@ -1,12 +1,14 @@
 package ru.skypro.homework.mappers;
 
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.model.AdEntity;
 import ru.skypro.homework.model.UserEntity;
 
-import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
+import static ru.skypro.homework.utils.ImageURLGenerator.generateAdImageUrl;
+import static ru.skypro.homework.utils.ImageURLGenerator.generateThisAdImageUrl;
 
 @Component
 @Transactional
@@ -22,7 +24,7 @@ public class ExtendedAdDTOMapper {
                 user.getLastName(),
                 ad.getDescription(),
                 user.getEmail(),
-                generateImageUrl(ad),
+                generateThisAdImageUrl(ad.getId(), ad.getImage()),
                 user.getPhone(),
                 ad.getPrice(),
                 ad.getTitle()

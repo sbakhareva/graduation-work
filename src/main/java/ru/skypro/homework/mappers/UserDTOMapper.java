@@ -6,7 +6,7 @@ import ru.skypro.homework.dto.User;
 import ru.skypro.homework.model.UserEntity;
 import ru.skypro.homework.model.UserImage;
 
-import static ru.skypro.homework.utils.ImageURLGenerator.generateImageUrl;
+import static ru.skypro.homework.utils.ImageURLGenerator.generateUserImageUrl;
 
 /**
  * Маппер UserEntity <-> User
@@ -41,7 +41,7 @@ public class UserDTOMapper {
                 userEntity.getLastName(),
                 userEntity.getPhone(),
                 userEntity.getRole(),
-                generateImageUrl(userEntity));
+                generateUserImageUrl(userEntity.getImage()));
     }
 }
 

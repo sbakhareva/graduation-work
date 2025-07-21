@@ -1,5 +1,6 @@
 package ru.skypro.homework.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.skypro.homework.model.UserImage;
@@ -14,4 +15,6 @@ public interface UserImageRepository extends JpaRepository<UserImage, Long> {
     void deleteByUserId(Integer id);
 
     boolean existsByUserId(Integer id);
+
+    Optional<UserImage> findById(Integer id);
 }

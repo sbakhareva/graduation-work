@@ -1,7 +1,8 @@
-package ru.skypro.homework.service;
+package ru.skypro.homework.service.impl;
 
-import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.skypro.homework.dto.Comment;
 import ru.skypro.homework.dto.Comments;
 import ru.skypro.homework.dto.CreateOrUpdateComment;
@@ -21,23 +22,16 @@ import java.util.List;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class CommentsService {
 
-    private final CommentDTOMapper commentDTOMapper = new CommentDTOMapper();
-    private final CommentsDTOMapper commentsDTOMapper = new CommentsDTOMapper(commentDTOMapper);
-    private final CreateOrUpdateCommentDTOMapper createOrUpdateCommentDTOMapper = new CreateOrUpdateCommentDTOMapper(commentDTOMapper);
+    private final CommentDTOMapper commentDTOMapper;
+    private final CommentsDTOMapper commentsDTOMapper;
+    private final CreateOrUpdateCommentDTOMapper createOrUpdateCommentDTOMapper;
 
     private final AdRepository adRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
-
-    public CommentsService(AdRepository adRepository,
-                           CommentRepository commentRepository,
-                           UserRepository userRepository) {
-        this.adRepository = adRepository;
-        this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
-    }
 
     private boolean isAdmin(String email) {
         return userRepository.findByEmail(email)
@@ -72,7 +66,9 @@ public class CommentsService {
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
         AdEntity ad = adRepository.findById(id)
                 .orElseThrow(() -> new NoAdsFoundException(id));
-        return createOrUpdateCommentDTOMapper.createEntityFromDto(createOrUpdateComment, user, ad);
+        CommentEntity comment = createOrUpdateCommentDTOMapper.createEntityFromDto(createOrUpdateComment, user, ad);
+        commentRepository.save(comment);
+        return commentDTOMapper.toDto(comment);
     }
 
     public void deleteComment(Integer adId,
@@ -96,9 +92,6 @@ public class CommentsService {
                                  Integer commentId,
                                  CreateOrUpdateComment updateComment,
                                  String email) {
-        AdEntity ad = adRepository.findById(adId)
-                .orElseThrow(() -> new NoAdsFoundException(adId));
-
         CommentEntity comment = commentRepository.findById(commentId)
                 .orElseThrow(NoCommentsException::new);
 

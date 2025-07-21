@@ -13,8 +13,4 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
     Optional<CommentEntity> findById(Integer id);
 
     List<CommentEntity> findAllByAdId(Integer id);
-
-    void deleteById(Integer id);
-
-    boolean existsById(Integer id);
 }
