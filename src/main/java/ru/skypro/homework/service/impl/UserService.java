@@ -3,6 +3,7 @@ package ru.skypro.homework.service.impl;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,11 @@ import ru.skypro.homework.repository.UserRepository;
 
 import java.io.IOException;
 
+/**
+ * Сервис для работы с сущностью {@link UserEntity}.
+ * Содержит методы для получения и обновления информации о пользователях.
+ */
+
 @Service
 @Transactional
 @AllArgsConstructor
@@ -36,6 +42,18 @@ public class UserService {
     private final UserImageRepository userImageRepository;
     private final UserImageService userImageService;
 
+    /**
+     * Обновляет пароль текущего пользователя
+     *
+     * @param newPassword объект {@link NewPassword}, содержащий текущий и новый пароли
+     * @param email       email пользователя, полученное из объекта {@link Authentication}
+     * @return {@code boolean} результат операции:
+     * <ul>
+     *   <li><b>true</b> – если пароль успешно обновлен</li>
+     *   <li><b>false</b> – если введенный старый пароль и текущий пароли не совпадают</li>
+     * </ul>
+     *  @throws NoUsersFoundByEmailException, если пользователь с указанным email не найден
+     */
     public boolean updatePassword(NewPassword newPassword, String email) {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
@@ -50,6 +68,13 @@ public class UserService {
         return true;
     }
 
+    /**
+     * Получает информацию о пользователе
+     *
+     * @param email email пользователя, извлеченный из {@link Authentication}
+     * @return объект ДТО {@link User}
+     * @throws NoUsersFoundByEmailException, если пользователем с указанным email не найден
+     */
     @Transactional(readOnly = true)
     public User getUser(String email) {
         UserEntity userEntity = userRepository.findByEmail(email)
@@ -58,6 +83,14 @@ public class UserService {
         return userDTOMapper.toDTO(userEntity);
     }
 
+    /**
+     * Обновляет информацию о пользователе
+     *
+     * @param updateUser объект ДТО {@link UpdateUser}, содержащий информацию для обновления полей сущности
+     * @param email      email пользователя, извлеченный из {@link Authentication}
+     * @return объект ДТО {@link UpdateUser} с уже обновленными полями из сущности {@link UserEntity}
+     * @throws NoUsersFoundByEmailException, если пользователем с указанным email не найден
+     */
     public UpdateUser updateUser(UpdateUser updateUser, String email) {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
@@ -65,7 +98,22 @@ public class UserService {
         return updateUserDTOMapper.updateEntityFromDto(updateUser, userEntity);
     }
 
-    @Transactional
+    /**
+     * Загружает новую картинку пользователя вместо дефолтной или текущей.
+     * Изначально осуществляется проверка, существует ли в таблице 'user_images' фото с id текущего пользователя.
+     * Если фото существует, оно удаляется из файловой системы и из базы данных.
+     * Если у пользователя пока нет фото профиля,
+     * новое фото загружается в базу данных и сохраняется в файловой системе.
+     * @param newImage новое фото, загруженное пользователем, которое преобразуется в сущность {@link UserImage}
+     * @param email email пользователя, извлеченный из {@link Authentication}
+     * @return {@code boolean} результат операции:
+     * <ul>
+     *   <li><b>true</b> – если фото успешно загружено</li>
+     *   <li><b>false</b> – если при загрузке возникли ошибки и фото не было обновлено</li>
+     * </ul>
+     * @throws NoUsersFoundByEmailException, если пользователем с указанным email не найден
+     * @throws NoImagesFoundException, если не найдены фото для текущего пользователя
+     */
     public boolean updateUserImage(MultipartFile newImage, String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
@@ -82,7 +130,7 @@ public class UserService {
             try {
                 userImageService.uploadImage(user.getId(), newImage);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                logger.error("Ошибка при загрузке фото пользователя с id {}: {}", user.getId(), e.getMessage(), e);
             }
             try {
                 UserImage image = userImageRepository.findByUserId(user.getId())
@@ -97,7 +145,7 @@ public class UserService {
         try {
             userImageService.uploadImage(user.getId(), newImage);
         } catch (IOException e) {
-            logger.error("Ошибка при сохранении изображения");
+            logger.error("Ошибка при загрузке фото пользователя с id {}: {}", user.getId(), e.getMessage(), e);
         }
         UserImage image = userImageRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new NoImagesFoundException("Не найдено фото для пользователя с id " + user.getId()));

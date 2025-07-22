@@ -7,6 +7,11 @@ import lombok.*;
 
 import java.util.Objects;
 
+/**
+ * Сущность фото объявления, представляющая запись в таблице `ads_images` базы данных.
+ * Используется для хранения данных о фото объявления.
+ */
+
 @Entity
 @Table(name = "ads_images")
 @Getter

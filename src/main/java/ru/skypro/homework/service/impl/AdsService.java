@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
@@ -20,6 +21,12 @@ import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 
 import java.io.IOException;
+import java.util.List;
+
+/**
+ * Сервис для работы с сущностью {@link AdEntity}.
+ * Содержит методы для сохранения, обновления и получения информации об объявлениях.
+ */
 
 @Service
 @Transactional
@@ -44,8 +51,17 @@ public class AdsService {
                 .orElse(false);
     }
 
+    /**
+     * Получает все объявления, которые хранятся в базе данных.
+     *
+     * @return объект ДТО {@link Ads}
+     */
     public Ads getAllAds() {
-        return adsDTOMapper.toDto(adRepository.findAll());
+        List<AdEntity> ads = adRepository.findAll();
+        if (ads.isEmpty()) {
+            logger.warn("В хранилище нет объявлений для отображения.");
+        }
+        return adsDTOMapper.toDto(ads);
     }
 
     public Ad addAd(CreateOrUpdateAd createOrUpdateAd,
@@ -53,24 +69,20 @@ public class AdsService {
                     String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
-        AdEntity adEntity = AdEntity.builder()
-                .price(createOrUpdateAd.getPrice())
-                .title(createOrUpdateAd.getTitle())
-                .description(createOrUpdateAd.getDescription())
-                .user(user)
-                .build();
 
-        adRepository.save(adEntity);
+        AdEntity ad = createOrUpdateAdDTOMapper.createEntityFromDto(createOrUpdateAd, user);
+
+        adRepository.save(ad);
 
         if (image != null && !image.isEmpty()) {
             try {
-                adImageService.uploadImage(adEntity.getId(), image);
+                adImageService.uploadImage(ad.getId(), image);
             } catch (IOException e) {
                 System.out.println(("Ошибка при загрузке изображения"));
             }
         }
 
-        return adDTOMapper.toDto(adEntity);
+        return adDTOMapper.toDto(ad);
     }
 
     public ExtendedAd getAdInfo(Integer id,

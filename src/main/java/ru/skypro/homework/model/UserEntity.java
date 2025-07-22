@@ -8,6 +8,11 @@ import ru.skypro.homework.dto.Role;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Сущность пользователя, представляющая запись в таблице `users` базы данных.
+ * Используется для хранения учетных данных и управления доступом.
+ */
+
 @Entity
 @Table(name = "users")
 @Getter

@@ -3,6 +3,12 @@ package ru.skypro.homework.dto;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import ru.skypro.homework.model.UserEntity;
+
+/**
+ * ДТО для регистрации нового пользователя.
+ * Содержит основную информацию о пользователе для преобразования в объект {@link UserEntity}
+ */
 
 @Data
 @AllArgsConstructor

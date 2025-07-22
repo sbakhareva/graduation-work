@@ -21,6 +21,16 @@ public class AuthController {
         this.authService = authService;
     }
 
+    /**
+     * Авторизация существующего пользователя
+     *
+     * @param login объект ДТО {@link Login}, содержащий имя пользователя и пароль
+     * @return {@link ResponseEntity}:
+     * <ul>
+     *   <li><b>200 OK</b> – если авторизация прошла успешно</li>
+     *   <li><b>401 Unauthorized</b> – если пользователь не существует или не совпадает пароль</li>
+     * </ul>
+     */
     @PostMapping("/login")
     @Operation(summary = "Авторизация пользователя", tags = {"Авторизация"})
     public ResponseEntity<?> login(@RequestBody Login login) {
@@ -31,6 +41,16 @@ public class AuthController {
         }
     }
 
+    /**
+     * Регистрация нового пользователя
+     *
+     * @param register объект ДТО {@link Register}, содержащий всю основную информацию о пользователе
+     * @return {@link ResponseEntity}:
+     * <ul>
+     *   <li><b>201 Created</b> – если пользователь успешно сохранен в базу данных</li>
+     *   <li><b>404 BadRequest</b> – если переданы данные, отличающиеся от шаблона</li>
+     * </ul>
+     */
     @PostMapping("/register")
     @Operation(summary = "Регистрация пользователя", tags = {"Регистрация"})
     public ResponseEntity<?> register(@RequestBody Register register) {

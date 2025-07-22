@@ -9,6 +9,11 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Сущность объявления, представляющая запись в таблице `ads` базы данных.
+ * Используется для хранения данных о созданных пользователями объявлениях.
+ */
+
 @Entity
 @Table(name = "ads")
 @Getter
@@ -42,7 +47,11 @@ public class AdEntity {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         AdEntity adEntity = (AdEntity) o;
-        return Objects.equals(id, adEntity.id) && Objects.equals(price, adEntity.price) && Objects.equals(title, adEntity.title) && Objects.equals(description, adEntity.description) && Objects.equals(user, adEntity.user);
+        return Objects.equals(id, adEntity.id) &&
+                Objects.equals(price, adEntity.price) &&
+                Objects.equals(title, adEntity.title) &&
+                Objects.equals(description, adEntity.description) &&
+                Objects.equals(user, adEntity.user);
     }
 
     @Override

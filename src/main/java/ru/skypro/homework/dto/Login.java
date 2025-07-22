@@ -3,6 +3,11 @@ package ru.skypro.homework.dto;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+/**
+ * Объект ДТО для авторизации в приложении.
+ * Содержит логин и пароль пользователя
+ */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
