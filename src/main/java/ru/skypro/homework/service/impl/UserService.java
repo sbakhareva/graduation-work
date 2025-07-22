@@ -46,7 +46,7 @@ public class UserService {
      * Обновляет пароль текущего пользователя
      *
      * @param newPassword объект {@link NewPassword}, содержащий текущий и новый пароли
-     * @param email       email пользователя, полученное из объекта {@link Authentication}
+     * @param email       email пользователя, извлеченный из {@link Authentication}
      * @return {@code boolean} результат операции:
      * <ul>
      *   <li><b>true</b> – если пароль успешно обновлен</li>
@@ -119,7 +119,6 @@ public class UserService {
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
         if (userImageRepository.existsByUserId(user.getId())) {
-            userImageService.deleteImageFile(user.getImage().getId());
             try {
                 userImageRepository.deleteByUserId(user.getId());
                 logger.info("Старое изображение пользователя {} удалено", email);

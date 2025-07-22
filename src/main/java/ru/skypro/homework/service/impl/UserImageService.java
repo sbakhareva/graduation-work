@@ -1,6 +1,5 @@
 package ru.skypro.homework.service.impl;
 
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.exception.*;
+import ru.skypro.homework.model.AdImage;
 import ru.skypro.homework.model.UserEntity;
 import ru.skypro.homework.model.UserImage;
 import ru.skypro.homework.repository.UserImageRepository;
@@ -47,6 +47,13 @@ public class UserImageService implements ImageService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Получает байты изображения для текущего пользователя по ссылке на файл в файловой системе.
+     *
+     * @param id идентификатор изображения
+     * @return байтовый массив для отображения изображения на фронтенде
+     * @throws NoImagesFoundException, если изображение с переданным id не найдено
+     */
     @Transactional(readOnly = true)
     public ResponseEntity<byte[]> getImage(Integer id) {
         UserImage image = userImageRepository.findById(id)
@@ -65,6 +72,15 @@ public class UserImageService implements ImageService {
         return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
 
+    /**
+     * Сохраняет изображение в виде {@link UserImage} в базе данных и в виде файла в файловой системе.
+     *
+     * @param userId идентификатор объявления
+     * @param image  загруженное пользователем изображение
+     * @throws InvalidFileTypeException,     если загружен файл с недопустимым типом файла
+     * @throws FileSizeExceededException,    если превышен допустимый размер файла
+     * @throws NoUsersFoundByEmailException, если не найдено пользователя с переданным id
+     */
     @Transactional
     public void uploadImage(Integer userId, MultipartFile image) throws IOException {
         if (!ALLOWED_TYPES.contains(image.getContentType())) {
@@ -103,20 +119,8 @@ public class UserImageService implements ImageService {
         }
     }
 
-    public UserImage getUserImage(Integer userId) {
+    private UserImage getUserImage(Integer userId) {
         return userImageRepository.findByUserId(userId)
                 .orElse(new UserImage());
-    }
-
-    public void deleteImageFile(Integer userId) {
-        UserImage userImage = userImageRepository.findByUserId(userId)
-                .orElseThrow(() -> new NoImagesFoundException("Фото " + userId + " не найдено"));
-
-        Path filePath = Path.of(userImage.getFilePath());
-        try {
-            Files.deleteIfExists(filePath);
-        } catch (IOException e) {
-            logger.error("Ошибка при удалении файла изображения: {}", filePath);
-        }
     }
 }
