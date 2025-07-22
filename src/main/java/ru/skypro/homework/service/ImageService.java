@@ -11,8 +11,6 @@ public interface ImageService {
 
     void uploadImage(Integer id, MultipartFile image) throws IOException;
 
-    void deleteImageFile(Integer id);
-
     default String getExtension(String fileName) {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }

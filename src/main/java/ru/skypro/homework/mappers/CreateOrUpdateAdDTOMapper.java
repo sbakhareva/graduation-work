@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.Ad;
 import ru.skypro.homework.dto.CreateOrUpdateAd;
 import ru.skypro.homework.model.AdEntity;
+import ru.skypro.homework.model.UserEntity;
 
 /**
  * Этот маппер позволяет обновить поля сущности AdEntity из CreateOrUpdateAd,
@@ -27,5 +28,14 @@ public class CreateOrUpdateAdDTOMapper {
             ad.setTitle(createOrUpdateAd.getTitle());
         }
         return adDTOMapper.toDto(ad);
+    }
+
+    public AdEntity createEntityFromDto(CreateOrUpdateAd createOrUpdateAd, UserEntity userEntity) {
+        return AdEntity.builder()
+                .price(createOrUpdateAd.getPrice())
+                .title(createOrUpdateAd.getTitle())
+                .description(createOrUpdateAd.getDescription())
+                .user(userEntity)
+                .build();
     }
 }

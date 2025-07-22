@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
@@ -20,6 +21,12 @@ import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 
 import java.io.IOException;
+import java.util.List;
+
+/**
+ * Сервис для работы с сущностью {@link AdEntity}.
+ * Содержит методы для сохранения, обновления и получения информации об объявлениях.
+ */
 
 @Service
 @Transactional
@@ -44,44 +51,78 @@ public class AdsService {
                 .orElse(false);
     }
 
+    /**
+     * Получает все объявления, которые хранятся в базе данных.
+     *
+     * @return объект ДТО {@link Ads}
+     */
     public Ads getAllAds() {
-        return adsDTOMapper.toDto(adRepository.findAll());
+        List<AdEntity> ads = adRepository.findAll();
+        if (ads.isEmpty()) {
+            logger.warn("В хранилище нет объявлений для отображения.");
+        }
+
+        return adsDTOMapper.toDto(ads);
     }
 
+    /**
+     * Сохраняет новое объявление в базу данных.
+     *
+     * @param createOrUpdateAd объект ДТО {@link CreateOrUpdateAd}, содержащий основную информацию об объявлении
+     * @param image            загруженное пользователем фото объявления
+     * @param email            email пользователя, извлеченный из {@link Authentication}
+     * @return объект ДТО {@link Ad}, содержащий краткую информацию об объявлении
+     * @throws NoUsersFoundByEmailException, если пользователем с указанным email не найден
+     */
     public Ad addAd(CreateOrUpdateAd createOrUpdateAd,
                     MultipartFile image,
                     String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
-        AdEntity adEntity = AdEntity.builder()
-                .price(createOrUpdateAd.getPrice())
-                .title(createOrUpdateAd.getTitle())
-                .description(createOrUpdateAd.getDescription())
-                .user(user)
-                .build();
 
-        adRepository.save(adEntity);
+        AdEntity ad = createOrUpdateAdDTOMapper.createEntityFromDto(createOrUpdateAd, user);
+
+        adRepository.save(ad);
 
         if (image != null && !image.isEmpty()) {
             try {
-                adImageService.uploadImage(adEntity.getId(), image);
+                adImageService.uploadImage(ad.getId(), image);
             } catch (IOException e) {
                 System.out.println(("Ошибка при загрузке изображения"));
             }
         }
 
-        return adDTOMapper.toDto(adEntity);
+        return adDTOMapper.toDto(ad);
     }
 
+    /**
+     * Получает расширенную информацию об объявлении.
+     *
+     * @param id    идентификатор объявления
+     * @param email email пользователя, извлеченный из {@link Authentication}
+     * @return объект ДТО {@link ExtendedAd}, содержащий подробную информацию об объявлении и его авторе
+     * @throws NoUsersFoundByEmailException, если пользователем с указанным email не найден
+     * @throws NoAdsFoundException,          если не найдено объявлений по переданному id
+     */
     public ExtendedAd getAdInfo(Integer id,
                                 String email) {
         AdEntity adEntity = adRepository.findById(id)
                 .orElseThrow(() -> new NoAdsFoundException(id));
+
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
+
         return extendedAdDTOMapper.toDto(adEntity, user);
     }
 
+    /**
+     * Удаляет объявление из базы данных.
+     *
+     * @param id    идентификатор объявления
+     * @param email email пользователя, извлеченный из {@link Authentication}
+     * @throws NoAdsFoundException,         если не найдено объявлений по переданному id
+     * @throws NoneOfYourBusinessException, если у пользователя нет прав на удаление объявления
+     */
     public void deleteAd(Integer id,
                          String email) {
         AdEntity adToDelete = adRepository.findById(id)
@@ -94,6 +135,17 @@ public class AdsService {
         adRepository.delete(adToDelete);
     }
 
+    /**
+     * Обновляет информацию о существующем объявлении.
+     *
+     * @param id               идентификатор объявления
+     * @param createOrUpdateAd объект ДТО {@link CreateOrUpdateAd}, содержащий обновленную информацию,
+     *                         полученную от пользователя
+     * @param email            email пользователя, извлеченный из {@link Authentication}
+     * @return объект ДТО {@link Ad}, содержащий краткую информацию об объявлении с обновленными полями
+     * @throws NoAdsFoundException,         если не найдено объявлений по переданному id
+     * @throws NoneOfYourBusinessException, если у пользователя нет прав на редактирование объявления
+     */
     public Ad updateAd(Integer id,
                        CreateOrUpdateAd createOrUpdateAd,
                        String email) {
@@ -107,12 +159,30 @@ public class AdsService {
         return createOrUpdateAdDTOMapper.updateEntityFromDto(createOrUpdateAd, adEntity);
     }
 
+    /**
+     * Получает объявления авторизованного пользователя.
+     *
+     * @param email email пользователя, извлеченный из {@link Authentication}
+     * @return объект ДТО {@link Ads}
+     */
     public Ads getAdsMe(String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
+
         return adsDTOMapper.toDto(adRepository.findAllByUserId(user.getId()));
     }
 
+    /**
+     * Обновляет картинку объявления.
+     *
+     * @param id    идентификатор объявления
+     * @param image загруженное пользователем новое фото
+     * @param email email пользователя, извлеченный из {@link Authentication}
+     * @return строка со ссылкой на изображение в файловой системе
+     * @throws NoneOfYourBusinessException, если у пользователя нет прав на редактирование информации об объявлении
+     * @throws NoAdsFoundException,         если не найдено объявлений по переданному id
+     * @throws NoImagesFoundException,      если не найдено изображений для текущего объявления
+     */
     public String updateImage(Integer id,
                               MultipartFile image,
                               String email) {
@@ -123,7 +193,6 @@ public class AdsService {
             throw new NoneOfYourBusinessException("Вы не можете обновить картинку этого объявления");
         }
 
-        adImageService.deleteImageFile(id);
         try {
             adImageRepository.deleteByAdId(ad.getId());
         } catch (Exception e) {
@@ -135,9 +204,12 @@ public class AdsService {
         } catch (IOException e) {
             logger.error("Ошибка при сохранении изображения");
         }
+
         AdImage newImage = adImageRepository.findByAdId(id)
                 .orElseThrow(() -> new NoImagesFoundException("Не найдено изображений для объявления с id " + id));
+
         ad.setImage(newImage);
+
         return newImage.getFilePath();
     }
 }

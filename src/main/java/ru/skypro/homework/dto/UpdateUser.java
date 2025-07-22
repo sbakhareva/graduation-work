@@ -3,6 +3,12 @@ package ru.skypro.homework.dto;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import ru.skypro.homework.model.UserEntity;
+
+/**
+ * ДТО для обновления данных существующего пользователя {@link UserEntity}.
+ * Содержит имя и фамилию пользователя и номер телефона
+ */
 
 @Data
 @NoArgsConstructor

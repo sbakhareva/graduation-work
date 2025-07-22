@@ -3,6 +3,12 @@ package ru.skypro.homework.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import ru.skypro.homework.model.AdEntity;
+
+/**
+ * ДТО для сущности {@link AdEntity} для создания новых объявлений или редактирования существующих.
+ * Содержит основную информацию: заголовок, описание, цену
+ */
 
 @Data
 @AllArgsConstructor

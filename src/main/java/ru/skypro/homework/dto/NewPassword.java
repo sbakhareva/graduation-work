@@ -5,6 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * ДТО для обновления пароля текущего пользователя.
+ * Содержит текущий пароль пользователя и новый
+ */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

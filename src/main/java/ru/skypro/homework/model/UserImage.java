@@ -7,6 +7,11 @@ import lombok.*;
 
 import java.util.Objects;
 
+/**
+ * Сущность фото пользователя, представляющая запись в таблице `user_images` базы данных.
+ * Используется для хранения данных о фото пользователя.
+ */
+
 @Entity
 @Table(name = "user_images")
 @Getter

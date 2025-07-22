@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.model.UserEntity;
 import ru.skypro.homework.repository.UserRepository;
-import ru.skypro.homework.utils.CustomUserDetails;
+import ru.skypro.homework.service.CustomUserDetails;
 
 @Service
 public class AdsOnlineUserDetailsService implements UserDetailsService {
@@ -22,11 +22,6 @@ public class AdsOnlineUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден."));
-
-        if (Hibernate.isInitialized(user.getImage()) && user.getImage() != null) {
-            Hibernate.initialize(user.getImage());
-        }
-
 
         return new CustomUserDetails(
                 user.getEmail(),

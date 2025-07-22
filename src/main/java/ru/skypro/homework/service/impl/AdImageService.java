@@ -1,6 +1,5 @@
 package ru.skypro.homework.service.impl;
 
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +25,11 @@ import java.util.List;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
+/**
+ * Сервис для работы с изображениями объявлений.
+ * Содержит методы для сохранения изображений в базу данных, получения байтов изображения по ссылке
+ * на файл в файловой системе и удаления устаревших изображений из файловой системы.
+ */
 @Service
 @Transactional
 public class AdImageService implements ImageService {
@@ -45,6 +49,13 @@ public class AdImageService implements ImageService {
         this.adRepository = adRepository;
     }
 
+    /**
+     * Получает байты изображения для списка объявлений по ссылке на файл в файловой системе.
+     *
+     * @param id идентификатор изображения
+     * @return байтовый массив для отображения изображения на фронтенде
+     * @throws NoImagesFoundException, если изображение с переданным id не найдено
+     */
     public ResponseEntity<byte[]> getImage(Integer id) {
         AdImage image = adImageRepository.findById(id)
                 .orElseThrow(() -> new NoImagesFoundException("Не найдено картинок с id " + id));
@@ -62,6 +73,14 @@ public class AdImageService implements ImageService {
         return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
 
+    /**
+     * Получает байты изображения для текущего объявления по ссылке на файл в файловой системе.
+     *
+     * @param adId    идентификатор объявления
+     * @param imageId идентификатор изображения
+     * @return байтовый массив для отображения изображения на фронтенде
+     * @throws NoImagesFoundException, если изображение с переданным id не найдено
+     */
     public ResponseEntity<byte[]> getThisAdImage(Integer adId, Integer imageId) {
         AdImage image = adImageRepository.findByAdId(adId)
                 .orElseThrow(() -> new NoImagesFoundException("Не найдено картинок с id " + imageId + " для объявления " + adId));
@@ -79,6 +98,16 @@ public class AdImageService implements ImageService {
         return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
 
+    /**
+     * Сохраняет изображение в виде {@link AdImage} в базе данных и в виде файла в файловой системе.
+     *
+     * @param adId  идентификатор объявления
+     * @param image загруженное пользователем изображение
+     * @throws InvalidFileTypeException,  если загружен файл с недопустимым типом файла
+     * @throws FileSizeExceededException, если превышен допустимый размер файла
+     * @throws NoAdsFoundException,       если не найдено объявлений с переданным id
+     */
+    @Transactional
     public void uploadImage(Integer adId, MultipartFile image) throws IOException {
         if (!ALLOWED_TYPES.contains(image.getContentType())) {
             throw new InvalidFileTypeException();
@@ -116,20 +145,8 @@ public class AdImageService implements ImageService {
         }
     }
 
-    public AdImage getAdImage(Integer adId) {
+    private AdImage getAdImage(Integer adId) {
         return adImageRepository.findByAdId(adId)
                 .orElse(new AdImage());
-    }
-
-    public void deleteImageFile(Integer adId) {
-        AdImage adImage = adImageRepository.findByAdId(adId)
-                .orElseThrow(() -> new NoImagesFoundException("Картинки для объявления " + adId + " не найдены"));
-
-        Path filePath = Path.of(adImage.getFilePath());
-        try {
-            Files.deleteIfExists(filePath);
-        } catch (IOException e) {
-            logger.error("Ошибка при удалении файла изображения: {}", filePath);
-        }
     }
 }

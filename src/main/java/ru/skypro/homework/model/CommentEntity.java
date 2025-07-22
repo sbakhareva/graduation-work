@@ -8,6 +8,11 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
 
+/**
+ * Сущность комментария, представляющая запись в таблице `comments` базы данных.
+ * Используется для хранения комментариев пользователей к объявлениям.
+ */
+
 @Entity
 @Table(name = "comments")
 @Data
