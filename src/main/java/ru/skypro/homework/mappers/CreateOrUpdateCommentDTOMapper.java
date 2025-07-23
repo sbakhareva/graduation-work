@@ -11,9 +11,10 @@ import ru.skypro.homework.model.UserEntity;
 import static ru.skypro.homework.utils.ImageURLGenerator.generateUserImageUrl;
 
 /**
- * Этот маппер позволяет обновить поля сущности CommentEntity из CreateOrUpdateComment,
- * чтобы потом с помощью CommentDTOMapper преобразовать обновленный комментарий в Comment
+ * Маппер для обновления полей сущности {@link CommentEntity} из {@link CreateOrUpdateComment}
+ * или создания на основе {@link CreateOrUpdateComment} новой сущности для сохранения в базу данных.
  */
+
 @Component
 @Transactional
 public class CreateOrUpdateCommentDTOMapper {

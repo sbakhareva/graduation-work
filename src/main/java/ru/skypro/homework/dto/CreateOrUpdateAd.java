@@ -10,9 +10,12 @@ import ru.skypro.homework.model.AdEntity;
  * Содержит основную информацию: заголовок, описание, цену
  */
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class CreateOrUpdateAd {
 
     @Size(min = 4, max = 32)

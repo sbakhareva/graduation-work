@@ -9,8 +9,9 @@ import ru.skypro.homework.model.UserImage;
 import static ru.skypro.homework.utils.ImageURLGenerator.generateUserImageUrl;
 
 /**
- * Маппер UserEntity <-> User
+ * Маппер для преобразования {@link UserEntity} и {@link User}
  */
+
 @Component
 @Transactional
 public class UserDTOMapper {

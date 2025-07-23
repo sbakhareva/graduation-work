@@ -17,9 +17,12 @@ import ru.skypro.homework.model.AdEntity;
  *  </ul>
  */
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class Ad {
 
     @JsonProperty("author")

@@ -1,18 +1,19 @@
 package ru.skypro.homework.dto;
 
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * ДТО для обновления пароля текущего пользователя.
  * Содержит текущий пароль пользователя и новый
  */
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class NewPassword {
 
     @Size(min = 8, max = 16)

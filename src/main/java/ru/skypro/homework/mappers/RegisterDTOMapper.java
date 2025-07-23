@@ -5,6 +5,10 @@ import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.model.UserEntity;
 
+/**
+ * Маппер для преобразования объекта {@link Register} в новую сущность {@link UserEntity}
+ */
+
 @Component
 public class RegisterDTOMapper {
 

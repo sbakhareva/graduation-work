@@ -9,9 +9,12 @@ import java.util.List;
  * Содержит информацию о количестве объявлений и список ДТО {@link Ad}
  */
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class Ads {
 
     private Integer count;

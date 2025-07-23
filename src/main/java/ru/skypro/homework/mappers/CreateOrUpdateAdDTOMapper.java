@@ -11,11 +11,15 @@ import ru.skypro.homework.model.UserEntity;
  * Этот маппер позволяет обновить поля сущности AdEntity из CreateOrUpdateAd,
  * чтобы затем с помощью AdDTOMapper была возможность вернуть в ответе Ad с обновленными полями
  */
+
 @Component
 public class CreateOrUpdateAdDTOMapper {
 
-    @Autowired
-    private final AdDTOMapper adDTOMapper = new AdDTOMapper();
+    private final AdDTOMapper adDTOMapper;
+
+    public CreateOrUpdateAdDTOMapper(AdDTOMapper adDTOMapper) {
+        this.adDTOMapper = adDTOMapper;
+    }
 
     public Ad updateEntityFromDto(CreateOrUpdateAd createOrUpdateAd, AdEntity ad) {
         if (createOrUpdateAd.getDescription() != null && !createOrUpdateAd.getDescription().isBlank()) {

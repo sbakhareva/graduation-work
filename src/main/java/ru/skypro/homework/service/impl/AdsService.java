@@ -30,7 +30,6 @@ import java.util.List;
 
 @Service
 @Transactional
-@AllArgsConstructor
 public class AdsService {
 
     private static final Logger logger = LoggerFactory.getLogger(AdsService.class);
@@ -44,6 +43,24 @@ public class AdsService {
     private final AdImageService adImageService;
     private final UserRepository userRepository;
     private final AdImageRepository adImageRepository;
+
+    public AdsService(AdDTOMapper adDTOMapper,
+                      AdsDTOMapper adsDTOMapper,
+                      ExtendedAdDTOMapper extendedAdDTOMapper,
+                      CreateOrUpdateAdDTOMapper createOrUpdateAdDTOMapper,
+                      AdRepository adRepository,
+                      AdImageService adImageService,
+                      UserRepository userRepository,
+                      AdImageRepository adImageRepository) {
+        this.adDTOMapper = adDTOMapper;
+        this.adsDTOMapper = adsDTOMapper;
+        this.extendedAdDTOMapper = extendedAdDTOMapper;
+        this.createOrUpdateAdDTOMapper = createOrUpdateAdDTOMapper;
+        this.adRepository = adRepository;
+        this.adImageService = adImageService;
+        this.userRepository = userRepository;
+        this.adImageRepository = adImageRepository;
+    }
 
     private boolean isAdmin(String email) {
         return userRepository.findByEmail(email)

@@ -16,7 +16,6 @@ import ru.skypro.homework.service.impl.UserImageService;
 import ru.skypro.homework.service.impl.UserService;
 
 @RestController
-@AllArgsConstructor
 @CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/users")
 @Tag(name = "Пользователи")
@@ -24,6 +23,12 @@ public class UserController {
 
     private final UserService userService;
     private final UserImageService userImageService;
+
+    public UserController(UserService userService,
+                          UserImageService userImageService) {
+        this.userService = userService;
+        this.userImageService = userImageService;
+    }
 
     /**
      * Обновление пароля пользователя

@@ -5,6 +5,10 @@ import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
 import ru.skypro.homework.model.UserEntity;
 
+/**
+ * Маппер для обновления полей сущности {@link UserEntity}
+ * с использованием объекта {@link UpdateUser}
+ */
 @Component
 public class UpdateUserDTOMapper {
 

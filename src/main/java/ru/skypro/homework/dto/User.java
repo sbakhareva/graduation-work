@@ -16,9 +16,12 @@ import ru.skypro.homework.model.UserEntity;
  *    <li>{@link #image} — путь к эндпоинту для получения байтов фото из файловой системы</li>
  *  </ul>
  */
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class User {
 
     private Integer id;

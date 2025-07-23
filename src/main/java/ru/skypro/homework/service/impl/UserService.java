@@ -1,6 +1,5 @@
 package ru.skypro.homework.service.impl;
 
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -29,7 +28,6 @@ import java.io.IOException;
 
 @Service
 @Transactional
-@AllArgsConstructor
 public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -41,6 +39,20 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserImageRepository userImageRepository;
     private final UserImageService userImageService;
+
+    public UserService(UserDTOMapper userDTOMapper,
+                       UpdateUserDTOMapper updateUserDTOMapper,
+                       UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       UserImageRepository userImageRepository,
+                       UserImageService userImageService) {
+        this.userDTOMapper = userDTOMapper;
+        this.updateUserDTOMapper = updateUserDTOMapper;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.userImageRepository = userImageRepository;
+        this.userImageService = userImageService;
+    }
 
     /**
      * Обновляет пароль текущего пользователя

@@ -31,7 +31,6 @@ import java.util.Optional;
 
 @Service
 @Transactional
-@AllArgsConstructor
 public class CommentsService {
 
     private static final Logger logger = LoggerFactory.getLogger(CommentsService.class);
@@ -43,6 +42,20 @@ public class CommentsService {
     private final AdRepository adRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+
+    public CommentsService(CommentDTOMapper commentDTOMapper,
+                           CommentsDTOMapper commentsDTOMapper,
+                           CreateOrUpdateCommentDTOMapper createOrUpdateCommentDTOMapper,
+                           AdRepository adRepository,
+                           CommentRepository commentRepository,
+                           UserRepository userRepository) {
+        this.commentDTOMapper = commentDTOMapper;
+        this.commentsDTOMapper = commentsDTOMapper;
+        this.createOrUpdateCommentDTOMapper = createOrUpdateCommentDTOMapper;
+        this.adRepository = adRepository;
+        this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
+    }
 
     private boolean isAdmin(String email) {
         return userRepository.findByEmail(email)

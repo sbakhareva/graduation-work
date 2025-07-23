@@ -9,9 +9,12 @@ import java.util.List;
  * Содержит информацию о количестве комментариев и список ДТО {@link Comment}
  */
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class Comments {
 
     private Integer count;

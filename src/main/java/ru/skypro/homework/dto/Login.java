@@ -8,9 +8,12 @@ import lombok.*;
  * Содержит логин и пароль пользователя
  */
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class Login {
 
     @Size(min = 4, max = 32)

@@ -14,7 +14,6 @@ import ru.skypro.homework.service.impl.AdsService;
 import ru.skypro.homework.service.impl.CommentsService;
 
 @RestController
-@AllArgsConstructor
 @CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/ads")
 public class AdsController {
@@ -22,6 +21,14 @@ public class AdsController {
     private final AdsService adsService;
     private final CommentsService commentsService;
     private final AdImageService adImageService;
+
+    public AdsController(AdsService adsService,
+                         CommentsService commentsService,
+                         AdImageService adImageService) {
+        this.adsService = adsService;
+        this.commentsService = commentsService;
+        this.adImageService = adImageService;
+    }
 
     /**
      * Получение всех существующих в базе данных объявлений

@@ -6,8 +6,9 @@ import ru.skypro.homework.dto.Comment;
 import ru.skypro.homework.model.CommentEntity;
 
 /**
- * Маппер CommentEntity <-> Comment
+ * Маппер для преобразования {@link CommentEntity} и {@link Comment}
  */
+
 @Component
 @Transactional
 public class CommentDTOMapper {
