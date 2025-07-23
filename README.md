@@ -57,7 +57,7 @@ Content-Type: application/json
 {
   "username": "user@gmail.com",
   "password": "password",
-  "firstName": "oiiaoiia",
+  "firstName": "firstname",
   "lastName": "lastname",
   "phone": "+7 987 654-32-10",
   "role": "USER"
@@ -78,9 +78,9 @@ Content-Type: application/json
 Authorization: Basic user@gmail.com password
 
 {
-  "price": 123,
-  "description": "123",
-  "title": "123"
+  "price": 1000000,
+  "description": "piece of heaven",
+  "title": "jojo's bizzare adventure manga"
 }
 ```
 
