@@ -76,7 +76,7 @@ public class AdsService {
     public Ads getAllAds() {
         List<AdEntity> ads = adRepository.findAll();
         if (ads.isEmpty()) {
-            logger.warn("В хранилище нет объявлений для отображения.");
+            logger.info("В хранилище нет объявлений для отображения.");
         }
 
         return adsDTOMapper.toDto(ads);
@@ -93,7 +93,7 @@ public class AdsService {
      */
     public Ad addAd(CreateOrUpdateAd createOrUpdateAd,
                     MultipartFile image,
-                    String email) {
+                    String email) throws IOException {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
@@ -102,11 +102,7 @@ public class AdsService {
         adRepository.save(ad);
 
         if (image != null && !image.isEmpty()) {
-            try {
-                adImageService.uploadImage(ad.getId(), image);
-            } catch (IOException e) {
-                System.out.println(("Ошибка при загрузке изображения"));
-            }
+            adImageService.uploadImage(ad.getId(), image);
         }
 
         return adDTOMapper.toDto(ad);
@@ -166,6 +162,10 @@ public class AdsService {
     public Ad updateAd(Integer id,
                        CreateOrUpdateAd createOrUpdateAd,
                        String email) {
+        if (!userRepository.existsByEmail(email)) {
+            throw new NoUsersFoundByEmailException(email);
+        }
+
         AdEntity adEntity = adRepository.findById(id)
                 .orElseThrow(() -> new NoAdsFoundException(id));
 
@@ -186,7 +186,13 @@ public class AdsService {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
-        return adsDTOMapper.toDto(adRepository.findAllByUserId(user.getId()));
+        List<AdEntity> ads = adRepository.findAllByUserId(user.getId());
+
+        if (ads.isEmpty()) {
+            throw new NoAdsFoundException(user.getId());
+        }
+
+        return adsDTOMapper.toDto(ads);
     }
 
     /**

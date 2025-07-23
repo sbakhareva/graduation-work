@@ -61,16 +61,20 @@ public class UserController {
     public ResponseEntity<Void> setPassword(@RequestBody NewPassword newPassword,
                                             Authentication authentication) {
         if (authentication == null) {
+            logger.warn("Пользователь не авторизован.");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         try {
             String email = authentication.getName();
             userService.updatePassword(newPassword, email);
+            logger.info("Пароль успешно обновлен.");
             return ResponseEntity.ok().build();
         } catch (BadCredentialsException e) {
+            logger.info("Текущий пароль не совпадает.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (IllegalArgumentException e) {
+            logger.info("Некорректные элементы запроса.");
             return ResponseEntity.badRequest().build();
         }
     }
@@ -89,12 +93,14 @@ public class UserController {
     })
     public ResponseEntity<User> getUser(Authentication authentication) {
         if (authentication == null) {
+            logger.warn("Пользователь не авторизован.");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         try {
             String email = authentication.getName();
             User user = userService.getUser(email);
+            logger.info("Данные пользователя получены");
             return ResponseEntity.ok(user);
         } catch (NoUsersFoundByEmailException e) {
             return ResponseEntity.notFound().build();
@@ -118,16 +124,19 @@ public class UserController {
     public ResponseEntity<UpdateUser> updateUser(@RequestBody UpdateUser updateUser,
                                                  Authentication authentication) {
         if (authentication == null) {
+            logger.warn("Пользователь не авторизован.");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         try {
             String email = authentication.getName();
             UpdateUser user = userService.updateUser(updateUser, email);
+            logger.info("Данные пользователя успешно обновлены.");
             return ResponseEntity.ok(user);
         } catch (NoUsersFoundByEmailException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalArgumentException e) {
+            logger.info("Некорректные элементы запроса.");
             return ResponseEntity.badRequest().build();
         }
     }
@@ -153,14 +162,16 @@ public class UserController {
     public ResponseEntity<Void> updateUserImage(@RequestParam MultipartFile image,
                                                 Authentication authentication) {
         if (authentication == null) {
+            logger.warn("Пользователь не авторизован.");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         try {
             String email = authentication.getName();
             userService.updateUserImage(image, email);
+            logger.info("Фото пользователя успешно обновлено.");
             return ResponseEntity.ok().build();
-        } catch (UsernameNotFoundException e) {
+        } catch (NoUsersFoundByEmailException e) {
             return ResponseEntity.notFound().build();
         } catch (IOException e) {
             logger.error("Ошибка при загрузке фото пользователя {}: {}", authentication.getName(), e.getMessage(), e);
@@ -184,6 +195,7 @@ public class UserController {
         try {
             return userImageService.getImage(id);
         } catch (NoImagesFoundException e) {
+            logger.debug("Изображение не найдено.");
             return ResponseEntity.notFound().build();
         }
     }
