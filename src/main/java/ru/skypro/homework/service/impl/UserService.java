@@ -2,6 +2,7 @@ package ru.skypro.homework.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -59,25 +60,20 @@ public class UserService {
      *
      * @param newPassword объект {@link NewPassword}, содержащий текущий и новый пароли
      * @param email       email пользователя, извлеченный из {@link Authentication}
-     * @return {@code boolean} результат операции:
-     * <ul>
-     *   <li><b>true</b> – если пароль успешно обновлен</li>
-     *   <li><b>false</b> – если введенный старый пароль и текущий пароли не совпадают</li>
-     * </ul>
-     *  @throws NoUsersFoundByEmailException, если пользователь с указанным email не найден
+     * @throws NoUsersFoundByEmailException, если пользователь с указанным email не найден
+     * @throws BadCredentialsException,      если текущий пароль не верен
      */
-    public boolean updatePassword(NewPassword newPassword, String email) {
+    public void updatePassword(NewPassword newPassword, String email) {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
         if (!passwordEncoder.matches(newPassword.getCurrentPassword(), userEntity.getPassword())) {
             logger.warn("Текущий и старый введённые пароли не совпадают.");
-            return false;
+            throw new BadCredentialsException("Текущий пароль неверен");
         }
 
         userEntity.setPassword(passwordEncoder.encode(newPassword.getNewPassword()));
         logger.info("Пароль успешно обновлен.");
-        return true;
     }
 
     /**
@@ -116,17 +112,18 @@ public class UserService {
      * Если фото существует, оно удаляется из файловой системы и из базы данных.
      * Если у пользователя пока нет фото профиля,
      * новое фото загружается в базу данных и сохраняется в файловой системе.
+     *
      * @param newImage новое фото, загруженное пользователем, которое преобразуется в сущность {@link UserImage}
-     * @param email email пользователя, извлеченный из {@link Authentication}
+     * @param email    email пользователя, извлеченный из {@link Authentication}
      * @return {@code boolean} результат операции:
      * <ul>
      *   <li><b>true</b> – если фото успешно загружено</li>
      *   <li><b>false</b> – если при загрузке возникли ошибки и фото не было обновлено</li>
      * </ul>
      * @throws NoUsersFoundByEmailException, если пользователем с указанным email не найден
-     * @throws NoImagesFoundException, если не найдены фото для текущего пользователя
+     * @throws NoImagesFoundException,       если не найдены фото для текущего пользователя
      */
-    public boolean updateUserImage(MultipartFile newImage, String email) {
+    public boolean updateUserImage(MultipartFile newImage, String email) throws IOException {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoUsersFoundByEmailException(email));
 
@@ -153,11 +150,9 @@ public class UserService {
                 return false;
             }
         }
-        try {
-            userImageService.uploadImage(user.getId(), newImage);
-        } catch (IOException e) {
-            logger.error("Ошибка при загрузке фото пользователя с id {}: {}", user.getId(), e.getMessage(), e);
-        }
+
+        userImageService.uploadImage(user.getId(), newImage);
+
         UserImage image = userImageRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new NoImagesFoundException("Не найдено фото для пользователя с id " + user.getId()));
         user.setImage(image);
