@@ -10,9 +10,12 @@ import ru.skypro.homework.model.UserEntity;
  * Содержит имя и фамилию пользователя и номер телефона
  */
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class UpdateUser {
 
     @Size(min = 2, max = 10)

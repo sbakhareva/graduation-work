@@ -16,9 +16,12 @@ import ru.skypro.homework.model.CommentEntity;
  *  </ul>
  */
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class Comment {
 
     private Integer author; // id автора комментария

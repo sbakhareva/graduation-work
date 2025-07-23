@@ -8,6 +8,10 @@ import ru.skypro.homework.model.AdEntity;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Маппер для преобразования списка объявлений {@link AdEntity} в объект {@link Ads}
+ */
+
 @Component
 public class AdsDTOMapper {
 

@@ -19,9 +19,12 @@ import ru.skypro.homework.model.AdEntity;
  *  </ul>
  */
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class ExtendedAd {
     private Integer pk;
     private String authorFirstName;

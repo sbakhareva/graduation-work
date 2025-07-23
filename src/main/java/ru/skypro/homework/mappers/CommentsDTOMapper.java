@@ -8,6 +8,10 @@ import ru.skypro.homework.model.CommentEntity;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Маппер для преобразования списка комментариев {@link CommentEntity} в объект {@link Comments}
+ */
+
 @Component
 public class CommentsDTOMapper {
 

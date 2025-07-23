@@ -10,9 +10,12 @@ import ru.skypro.homework.model.UserEntity;
  * Содержит основную информацию о пользователе для преобразования в объект {@link UserEntity}
  */
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class Register {
 
     @Size(min = 4, max = 32)

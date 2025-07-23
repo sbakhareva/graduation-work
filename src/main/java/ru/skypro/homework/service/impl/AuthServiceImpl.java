@@ -21,14 +21,21 @@ import ru.skypro.homework.service.AuthService;
 
 @Service
 @Transactional
-@AllArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     private final PasswordEncoder encoder;
-    private final RegisterDTOMapper registerDTOMapper = new RegisterDTOMapper();
+    private final RegisterDTOMapper registerDTOMapper;
     private final UserRepository userRepository;
+
+    public AuthServiceImpl(PasswordEncoder encoder,
+                           RegisterDTOMapper registerDTOMapper,
+                           UserRepository userRepository) {
+        this.encoder = encoder;
+        this.registerDTOMapper = registerDTOMapper;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Выполняет вход в профиль пользователя

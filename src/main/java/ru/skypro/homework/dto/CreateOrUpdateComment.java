@@ -10,9 +10,12 @@ import ru.skypro.homework.model.CommentEntity;
  * Содержит текст комментария
  */
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class CreateOrUpdateComment {
 
     @Size(min = 8, max = 64)

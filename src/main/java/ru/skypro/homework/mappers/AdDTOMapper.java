@@ -9,8 +9,9 @@ import ru.skypro.homework.model.AdEntity;
 import static ru.skypro.homework.utils.ImageURLGenerator.generateAdImageUrl;
 
 /**
- * Маппер AdEntity <-> Ad
+ * Маппер для преобразования {@link AdEntity} и {@link Ad}
  */
+
 @Component
 @Transactional
 public class AdDTOMapper {

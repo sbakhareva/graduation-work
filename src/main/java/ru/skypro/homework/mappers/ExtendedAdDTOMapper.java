@@ -10,6 +10,11 @@ import ru.skypro.homework.model.UserEntity;
 import static ru.skypro.homework.utils.ImageURLGenerator.generateAdImageUrl;
 import static ru.skypro.homework.utils.ImageURLGenerator.generateThisAdImageUrl;
 
+/**
+ * Маппер для преобразования объекта {@link AdEntity} в объект
+ * с расширенной информацией об объявлении {@link ExtendedAd}
+ */
+
 @Component
 @Transactional
 public class ExtendedAdDTOMapper {

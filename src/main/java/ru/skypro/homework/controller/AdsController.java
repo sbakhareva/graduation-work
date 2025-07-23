@@ -1,27 +1,43 @@
 package ru.skypro.homework.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import ru.skypro.homework.dto.*;
 
 import org.springframework.http.MediaType;
+import ru.skypro.homework.exception.*;
 import ru.skypro.homework.service.impl.AdImageService;
 import ru.skypro.homework.service.impl.AdsService;
 import ru.skypro.homework.service.impl.CommentsService;
 
+import java.io.IOException;
+
 @RestController
-@AllArgsConstructor
 @CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/ads")
 public class AdsController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AdsController.class);
+
     private final AdsService adsService;
     private final CommentsService commentsService;
     private final AdImageService adImageService;
+
+    public AdsController(AdsService adsService,
+                         CommentsService commentsService,
+                         AdImageService adImageService) {
+        this.adsService = adsService;
+        this.commentsService = commentsService;
+        this.adImageService = adImageService;
+    }
 
     /**
      * Получение всех существующих в базе данных объявлений
@@ -29,9 +45,19 @@ public class AdsController {
      * @return объект {@link Ads}, содержащий общее количество и список кратких ДТО объявлений {@link Ad}
      */
     @GetMapping
-    @Operation(summary = "Получение всех объявлений", tags = {"Объявления"})
-    public Ads getAllAds() {
-        return adsService.getAllAds();
+    @Operation(summary = "Получение всех объявлений", tags = {"Объявления"}, responses = {
+            @ApiResponse(responseCode = "200", description = "Успешно получен список объявлений"),
+            @ApiResponse(responseCode = "404", description = "Объявления не найдены"),
+            @ApiResponse(responseCode = "401", description = "Пользователь не авторизован")
+    })
+    public ResponseEntity<Ads> getAllAds() {
+        try {
+            Ads ads = adsService.getAllAds();
+            return ResponseEntity.ok(ads);
+        } catch (NoAdsFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
     }
 
     /**
@@ -43,12 +69,29 @@ public class AdsController {
      * @return объект {@link Ad}, содержащий информацию об объявлении и id создавшего его пользователя
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Добавление объявления", tags = {"Объявления"})
-    public Ad addAd(@RequestPart("properties") CreateOrUpdateAd createOrUpdateAd,
-                    @RequestPart(value = "image") MultipartFile adImage,
-                    Authentication authentication) {
-        String email = authentication.getName();
-        return adsService.addAd(createOrUpdateAd, adImage, email);
+    @Operation(summary = "Добавление объявления", tags = {"Объявления"}, responses = {
+            @ApiResponse(responseCode = "200", description = "Обновление добавлено"),
+            @ApiResponse(responseCode = "401", description = "Пользователь не авторизован"),
+            @ApiResponse(responseCode = "404", description = "Пользователь не найден"),
+            @ApiResponse(responseCode = "400", description = "Ошибка в данных запроса")
+    })
+    public ResponseEntity<Ad> addAd(@RequestPart("properties") CreateOrUpdateAd createOrUpdateAd,
+                                    @RequestPart(value = "image") MultipartFile adImage,
+                                    Authentication authentication) {
+        if (authentication == null) {
+            logger.warn("Пользователь не авторизован.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
+            String email = authentication.getName();
+            Ad ad = adsService.addAd(createOrUpdateAd, adImage, email);
+            return ResponseEntity.ok(ad);
+        } catch (NoUsersFoundByEmailException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     /**
@@ -59,11 +102,28 @@ public class AdsController {
      * @return объект {@link ExtendedAd}, содержащий подробную информацию об объявлении и создавшем его пользователе
      */
     @GetMapping("/{id}")
-    @Operation(summary = "Получение информации об объявлении", tags = {"Объявления"})
-    public ExtendedAd getAdInfo(@PathVariable("id") Integer id,
-                                Authentication authentication) {
-        String email = authentication.getName();
-        return adsService.getAdInfo(id, email);
+    @Operation(summary = "Получение информации об объявлении", tags = {"Объявления"}, responses = {
+            @ApiResponse(responseCode = "200", description = "Получена информация об объявлении"),
+            @ApiResponse(responseCode = "404", description = "Объявлений не найдено"),
+            @ApiResponse(responseCode = "401", description = "Пользователь не авторизован")
+    })
+    public ResponseEntity<ExtendedAd> getAdInfo(@PathVariable("id") Integer id,
+                                                Authentication authentication) {
+
+        if (authentication == null) {
+            logger.warn("Пользователь не авторизован.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
+            String email = authentication.getName();
+            ExtendedAd ad = adsService.getAdInfo(id, email);
+            logger.info("Успешно получена информация об объявлении.");
+            return ResponseEntity.ok(ad);
+        } catch (NoAdsFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
     }
 
     /**
@@ -77,12 +137,29 @@ public class AdsController {
      * </ul>
      */
     @DeleteMapping("/{id}")
-    @Operation(summary = "Удаление объявления", tags = {"Объявления"})
-    public ResponseEntity<?> deleteAd(@PathVariable("id") Integer id,
-                                      Authentication authentication) {
-        String email = authentication.getName();
-        adsService.deleteAd(id, email);
-        return ResponseEntity.noContent().build();
+    @Operation(summary = "Удаление объявления", tags = {"Объявления"}, responses = {
+            @ApiResponse(responseCode = "401", description = "Пользователь не авторизован или нет прав на операцию"),
+            @ApiResponse(responseCode = "204", description = "Объявление успешно удалено"),
+            @ApiResponse(responseCode = "404", description = "Объявление не найдено")
+    })
+    public ResponseEntity<Void> deleteAd(@PathVariable("id") Integer id,
+                                         Authentication authentication) {
+
+        if (authentication == null) {
+            logger.warn("Пользователь не авторизован.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
+            String email = authentication.getName();
+            adsService.deleteAd(id, email);
+            return ResponseEntity.noContent().build();
+        } catch (NoneOfYourBusinessException e) {
+            logger.warn("У пользователя {} нет прав на выполнение этой операции", authentication.getName());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (NoAdsFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**
@@ -94,12 +171,30 @@ public class AdsController {
      * @return объект {@link Ad}, содержащий информацию об объявлении и id создавшего его пользователя
      */
     @PatchMapping("/{id}")
-    @Operation(summary = "Обновление информации об объявлении", tags = {"Объявления"})
-    public Ad updateAds(@PathVariable(value = "id", required = true) Integer id,
-                        @RequestBody CreateOrUpdateAd ad,
-                        Authentication authentication) {
-        String email = authentication.getName();
-        return adsService.updateAd(id, ad, email);
+    @Operation(summary = "Обновление информации об объявлении", tags = {"Объявления"}, responses = {
+            @ApiResponse(responseCode = "200", description = "Информация успешно обновлена"),
+            @ApiResponse(responseCode = "401", description = "Пользователь не авторизован или нет прав на операцию"),
+            @ApiResponse(responseCode = "404", description = "Объявление или пользователь не найдены")
+    })
+    public ResponseEntity<Ad> updateAds(@PathVariable(value = "id", required = true) Integer id,
+                                        @RequestBody CreateOrUpdateAd ad,
+                                        Authentication authentication) {
+        if (authentication == null) {
+            logger.warn("Пользователь не авторизован.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
+            String email = authentication.getName();
+            Ad updatedAd = adsService.updateAd(id, ad, email);
+            logger.info("Информация объявления успешно обновлена");
+            return ResponseEntity.ok(updatedAd);
+        } catch (NoUsersFoundByEmailException | NoAdsFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (NoneOfYourBusinessException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
     }
 
     /**
@@ -109,10 +204,25 @@ public class AdsController {
      * @return объект {@link Ads}, содержащий общее количество и список кратких ДТО объявлений {@link Ad}
      */
     @GetMapping("/me")
-    @Operation(summary = "Получение объявлений авторизованного пользователя", tags = {"Объявления"})
-    public Ads getAdsMe(Authentication authentication) {
-        String email = authentication.getName();
-        return adsService.getAdsMe(email);
+    @Operation(summary = "Получение объявлений авторизованного пользователя", tags = {"Объявления"}, responses = {
+            @ApiResponse(responseCode = "200", description = "Успешно получен список объявлений"),
+            @ApiResponse(responseCode = "401", description = "Пользователь не авторизован"),
+            @ApiResponse(responseCode = "404", description = "Не найден пользователь или объявления")
+    })
+    public ResponseEntity<Ads> getAdsMe(Authentication authentication) {
+        if (authentication == null) {
+            logger.warn("Пользователь не авторизован.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
+            String email = authentication.getName();
+            Ads ads = adsService.getAdsMe(email);
+            return ResponseEntity.ok(ads);
+        } catch (NoUsersFoundByEmailException | NoAdsFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
     }
 
     /**
@@ -124,12 +234,32 @@ public class AdsController {
      * @return ссылка на картинку в файловой системе
      */
     @PatchMapping("/{id}/image")
-    @Operation(summary = "Обновление картинки объявления", tags = {"Объявления"})
-    public String updateImage(@PathVariable("id") Integer id,
-                              @RequestParam MultipartFile image,
-                              Authentication authentication) {
-        String email = authentication.getName();
-        return adsService.updateImage(id, image, email);
+    @Operation(summary = "Обновление картинки объявления", tags = {"Объявления"}, responses = {
+            @ApiResponse(responseCode = "200", description = "Изображение успешно обновлено"),
+            @ApiResponse(responseCode = "401", description = "Пользователь не авторизован или не имеет прав на операцию"),
+            @ApiResponse(responseCode = "404", description = "Не найдено изображение или объявление")
+    })
+    public ResponseEntity<String> updateImage(@PathVariable("id") Integer id,
+                                              @RequestParam MultipartFile image,
+                                              Authentication authentication) {
+        if (authentication == null) {
+            logger.warn("Пользователь не авторизован.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
+            String email = authentication.getName();
+            String path = adsService.updateImage(id, image, email);
+            logger.info("Изображение успешно обновлено");
+            return ResponseEntity.ok(path);
+        } catch (NoAdsFoundException | NoImagesFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (NoneOfYourBusinessException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            logger.debug("Ошибка при обработке изображения");
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     /**
@@ -140,9 +270,17 @@ public class AdsController {
      * и информацию о комментариях в формате ДТО {@link Comment}
      */
     @GetMapping("/{id}/comments")
-    @Operation(summary = "Получение комментариев объявления", tags = {"Комментарии"})
-    public Comments getComments(@PathVariable(value = "id", required = true) Integer id) {
-        return commentsService.getComments(id);
+    @Operation(summary = "Получение комментариев объявления", tags = {"Комментарии"}, responses = {
+            @ApiResponse(responseCode = "200", description = "Успешно получен список комментариев"),
+            @ApiResponse(responseCode = "404", description = "Не найдено объявление или у него нет комментариев")
+    })
+    public ResponseEntity<Comments> getComments(@PathVariable(value = "id", required = true) Integer id) {
+        try {
+            Comments comments = commentsService.getComments(id);
+            return ResponseEntity.ok(comments);
+        } catch (NoAdsFoundException | NoCommentsException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**
@@ -154,12 +292,28 @@ public class AdsController {
      * @return объект {@link Comment}, содержащий подробную информацию о комментарии и оставившем его пользователе
      */
     @PostMapping("/{id}/comments")
-    @Operation(summary = "Добавление комментария к объявлению", tags = {"Комментарии"})
-    public Comment addComment(@PathVariable("id") Integer id,
-                              @RequestBody CreateOrUpdateComment comment,
-                              Authentication authentication) {
-        String email = authentication.getName();
-        return commentsService.addComment(id, comment, email);
+    @Operation(summary = "Добавление комментария к объявлению", tags = {"Комментарии"}, responses = {
+            @ApiResponse(responseCode = "200", description = "Успешно создан комментарий"),
+            @ApiResponse(responseCode = "404", description = "Не найдено объявление или пользователь"),
+            @ApiResponse(responseCode = "401", description = "Пользователь не авторизован")
+    })
+    public ResponseEntity<Comment> addComment(@PathVariable("id") Integer id,
+                                              @RequestBody CreateOrUpdateComment comment,
+                                              Authentication authentication) {
+        if (authentication == null) {
+            logger.warn("Пользователь не авторизован.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
+            String email = authentication.getName();
+            Comment newComment = commentsService.addComment(id, comment, email);
+            logger.info("Комментарий успешно создан");
+            return ResponseEntity.ok(newComment);
+        } catch (NoUsersFoundByEmailException | NoAdsFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
     }
 
     /**
@@ -174,13 +328,29 @@ public class AdsController {
      * </ul>
      */
     @DeleteMapping("/{adId}/comments/{commentId}")
-    @Operation(summary = "Удаление комментария", tags = {"Комментарии"})
-    public ResponseEntity<?> deleteComment(@PathVariable(value = "adId", required = true) Integer adId,
-                                           @PathVariable(value = "commentId", required = true) Integer commentId,
-                                           Authentication authentication) {
-        String email = authentication.getName();
-        commentsService.deleteComment(adId, commentId, email);
-        return ResponseEntity.noContent().build();
+    @Operation(summary = "Удаление комментария", tags = {"Комментарии"}, responses = {
+            @ApiResponse(responseCode = "401", description = "Пользователь не авторизован или не имеет прав на операцию"),
+            @ApiResponse(responseCode = "204", description = "Комментарий успешно удален"),
+            @ApiResponse(responseCode = "404", description = "Комментарии не найдены")
+    })
+    public ResponseEntity<Void> deleteComment(@PathVariable(value = "adId", required = true) Integer adId,
+                                              @PathVariable(value = "commentId", required = true) Integer commentId,
+                                              Authentication authentication) {
+        if (authentication == null) {
+            logger.warn("Пользователь не авторизован.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
+            String email = authentication.getName();
+            commentsService.deleteComment(adId, commentId, email);
+            logger.info("Комментарий успешно удален");
+            return ResponseEntity.noContent().build();
+        } catch (NoneOfYourBusinessException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (NoCommentsException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**
@@ -193,13 +363,30 @@ public class AdsController {
      * @return объект {@link Comment}, содержащий подробную информацию о комментарии и оставившем его пользователе
      */
     @PatchMapping("/{adId}/comments/{commentId}")
-    @Operation(summary = "Обновление комментария", tags = {"Комментарии"})
-    public Comment updateComment(@PathVariable(value = "adId") Integer adId,
-                                 @PathVariable(value = "commentId") Integer commentId,
-                                 @RequestBody CreateOrUpdateComment comment,
-                                 Authentication authentication) {
-        String email = authentication.getName();
-        return commentsService.updateComment(adId, commentId, comment, email);
+    @Operation(summary = "Обновление комментария", tags = {"Комментарии"}, responses = {
+            @ApiResponse(responseCode = "401", description = "Пользователь не авторизован или не имеет прав на операцию"),
+            @ApiResponse(responseCode = "404", description = "У объявления пока нет комментариев"),
+            @ApiResponse(responseCode = "200", description = "Комментарий успешно обновлен")
+    })
+    public ResponseEntity<Comment> updateComment(@PathVariable(value = "adId") Integer adId,
+                                                 @PathVariable(value = "commentId") Integer commentId,
+                                                 @RequestBody CreateOrUpdateComment comment,
+                                                 Authentication authentication) {
+        if (authentication == null) {
+            logger.warn("Пользователь не авторизован.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
+            String email = authentication.getName();
+            Comment updatedComment = commentsService.updateComment(adId, commentId, comment, email);
+            logger.info("Комментарий успешно обновлен");
+            return ResponseEntity.ok(updatedComment);
+        } catch (NoneOfYourBusinessException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (NoCommentsException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**
