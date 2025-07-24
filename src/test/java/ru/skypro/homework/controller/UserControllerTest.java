@@ -43,8 +43,6 @@ class UserControllerTest {
         json.put("currentPassword", "oldPass123");
         json.put("newPassword", "newPass123");
 
-        when(userService.updatePassword(any(NewPassword.class), anyString())).thenReturn(true);
-
         mockMvc.perform(post("/users/set_password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json.toString())

@@ -101,7 +101,7 @@ class AdsControllerTest {
     void getAdInfo() throws Exception {
         ExtendedAd adInfo = new ExtendedAd(1, "firstName", "lastName", "description", "email", "image", "phone", 50, "title");
 
-        when(adsService.getAdInfo(anyInt(), anyString())).thenReturn(adInfo);
+        when(adsService.getAdInfo(anyInt())).thenReturn(adInfo);
 
         mockMvc.perform(get("/ads/1")
                         .with(csrf()))
