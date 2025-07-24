@@ -8,10 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
-import ru.skypro.homework.exception.NoAdsFoundException;
-import ru.skypro.homework.exception.NoImagesFoundException;
-import ru.skypro.homework.exception.NoUsersFoundByEmailException;
-import ru.skypro.homework.exception.NoneOfYourBusinessException;
+import ru.skypro.homework.exception.*;
 import ru.skypro.homework.mappers.*;
 import ru.skypro.homework.model.AdEntity;
 import ru.skypro.homework.model.AdImage;
@@ -68,6 +65,15 @@ public class AdsService {
                 .orElse(false);
     }
 
+    private boolean isOwner(Integer adId, String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NoUsersFoundByEmailException(email));
+
+        return adRepository.findById(adId)
+                .map(ad -> ad.getUser().getId().equals(user.getId()))
+                .orElse(false);
+    }
+
     /**
      * Получает все объявления, которые хранятся в базе данных.
      *
@@ -112,18 +118,17 @@ public class AdsService {
      * Получает расширенную информацию об объявлении.
      *
      * @param id    идентификатор объявления
-     * @param email email пользователя, извлеченный из {@link Authentication}
      * @return объект ДТО {@link ExtendedAd}, содержащий подробную информацию об объявлении и его авторе
      * @throws NoUsersFoundByEmailException, если пользователем с указанным email не найден
      * @throws NoAdsFoundException,          если не найдено объявлений по переданному id
      */
-    public ExtendedAd getAdInfo(Integer id,
-                                String email) {
+    public ExtendedAd getAdInfo(Integer id) {
         AdEntity adEntity = adRepository.findById(id)
                 .orElseThrow(() -> new NoAdsFoundException(id));
 
-        UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoUsersFoundByEmailException(email));
+        Integer userId = adEntity.getUser().getId();
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoUsersFoundByIdException(userId));
 
         return extendedAdDTOMapper.toDto(adEntity, user);
     }
@@ -141,7 +146,7 @@ public class AdsService {
         AdEntity adToDelete = adRepository.findById(id)
                 .orElseThrow(() -> new NoAdsFoundException(id));
 
-        if (!adToDelete.getUser().getEmail().equals(email) && !isAdmin(email)) {
+        if (!isOwner(id, email) && !isAdmin(email)) {
             throw new NoneOfYourBusinessException("Вы не можете удалить это объявление");
         }
 
@@ -169,7 +174,7 @@ public class AdsService {
         AdEntity adEntity = adRepository.findById(id)
                 .orElseThrow(() -> new NoAdsFoundException(id));
 
-        if (!adEntity.getUser().getEmail().equals(email) && !isAdmin(email)) {
+        if (!isOwner(id, email) && !isAdmin(email)) {
             throw new NoneOfYourBusinessException("Вы не можете редактировать это объявление");
         }
 
@@ -212,7 +217,7 @@ public class AdsService {
         AdEntity ad = adRepository.findById(id)
                 .orElseThrow(() -> new NoAdsFoundException(id));
 
-        if (!ad.getUser().getEmail().equals(email) && !isAdmin(email)) {
+        if (!isOwner(id, email) && !isAdmin(email)) {
             throw new NoneOfYourBusinessException("Вы не можете обновить картинку этого объявления");
         }
 

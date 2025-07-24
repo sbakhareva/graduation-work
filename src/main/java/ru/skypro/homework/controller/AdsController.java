@@ -98,7 +98,6 @@ public class AdsController {
      * Получение информации об объявлении
      *
      * @param id             идентификатор объявления
-     * @param authentication информация о пользователе из хидеров
      * @return объект {@link ExtendedAd}, содержащий подробную информацию об объявлении и создавшем его пользователе
      */
     @GetMapping("/{id}")
@@ -107,17 +106,9 @@ public class AdsController {
             @ApiResponse(responseCode = "404", description = "Объявлений не найдено"),
             @ApiResponse(responseCode = "401", description = "Пользователь не авторизован")
     })
-    public ResponseEntity<ExtendedAd> getAdInfo(@PathVariable("id") Integer id,
-                                                Authentication authentication) {
-
-        if (authentication == null) {
-            logger.warn("Пользователь не авторизован.");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
+    public ResponseEntity<ExtendedAd> getAdInfo(@PathVariable("id") Integer id) {
         try {
-            String email = authentication.getName();
-            ExtendedAd ad = adsService.getAdInfo(id, email);
+            ExtendedAd ad = adsService.getAdInfo(id);
             logger.info("Успешно получена информация об объявлении.");
             return ResponseEntity.ok(ad);
         } catch (NoAdsFoundException e) {
