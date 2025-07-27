@@ -85,9 +85,6 @@ public class CommentsService {
         }
 
         List<CommentEntity> comments = commentRepository.findAllByAdId(id);
-        if (comments.isEmpty()) {
-            throw new NoCommentsException();
-        }
 
         return commentsDTOMapper.toDto(comments);
     }

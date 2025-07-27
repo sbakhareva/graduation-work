@@ -1,6 +1,5 @@
 package ru.skypro.homework.service.impl;
 
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.skypro.homework.dto.Login;
 import ru.skypro.homework.dto.Register;
-import ru.skypro.homework.exception.NoUsersFoundByEmailException;
 import ru.skypro.homework.mappers.RegisterDTOMapper;
 import ru.skypro.homework.model.UserEntity;
 import ru.skypro.homework.repository.UserRepository;

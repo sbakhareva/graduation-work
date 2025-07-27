@@ -1,7 +1,6 @@
 package ru.skypro.homework.service.impl;
 
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -194,7 +193,7 @@ public class AdsService {
         List<AdEntity> ads = adRepository.findAllByUserId(user.getId());
 
         if (ads.isEmpty()) {
-            throw new NoAdsFoundException(user.getId());
+            logger.info("В хранилище нет объявлений для пользователя {}", user.getId());
         }
 
         return adsDTOMapper.toDto(ads);
